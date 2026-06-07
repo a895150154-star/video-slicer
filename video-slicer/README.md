@@ -11,9 +11,10 @@
 - **FFmpeg**（必须能在命令行直接调用 `ffmpeg`）
   - macOS：`brew install ffmpeg`
   - Windows：从 https://ffmpeg.org/download.html 下载，加到 PATH
-- **whisper.cpp 二进制**
-  - 包内 `whisper.cpp-master/build/bin/whisper-cli` 是 **macOS ARM64（M 系列芯片）** 编译的，可直接用
-  - 其他平台（Intel Mac / Windows / Linux）需要进 `whisper.cpp-master/` 重新编译，参考其 README
+- **whisper.cpp 二进制 + 模型**（⚠️ 本仓库未包含，需自行获取）
+  - 本仓库为节省体积，**未上传** `whisper.cpp-master/`（约 1.5GB）和 `ggml-medium.bin` 模型（约 1.4GB）
+  - 获取方式见 `SETUP-FOR-TEAMMATE.md` 的「2. 安装 whisper.cpp」一节：`git clone` + `make` 编译 + 下载模型脚本
+  - 所有平台（含 macOS ARM64）都需自行编译一次
 
 ## 启动步骤
 
@@ -42,8 +43,8 @@ npm run dev                       # http://localhost:3000
 - `backend/main.py` — 后端全部逻辑（单文件）
 - `backend/data/` — 词库文件（口水词、敏感词），保留勿删
 - `backend/videos/` — 运行时上传/产物目录，启动后自动创建
-- `whisper.cpp-master/models/ggml-medium.bin` — 1.4GB 语音模型
-- `whisper.cpp-master/build/bin/whisper-cli` — whisper 可执行文件
+- `whisper.cpp-master/models/ggml-medium.bin` — 1.4GB 语音模型（⚠️ 未上传，需自行下载）
+- `whisper.cpp-master/build/bin/whisper-cli` — whisper 可执行文件（⚠️ 未上传，需自行编译）
 
 ## 注意
 

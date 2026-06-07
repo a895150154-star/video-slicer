@@ -14,7 +14,7 @@
 | `landing/` | 你之前设计的落地页（已同步） |
 | `PRD/` | 10 份产品文档（反推现有代码） |
 | `DESIGN.md` | 设计规范 v2（lime green 主题） |
-| `CONVERSATION-SUMMARY.md` 等 | 项目复盘 |
+| `Video-Slicer-项目复盘.docx` | 项目复盘 |
 
 ---
 
@@ -158,7 +158,7 @@ pip install -r requirements.txt
 
 | 文档 | 内容 |
 |------|------|
-| `CONVERSATION-SUMMARY.md` | 整个项目的复盘（产品定位、决策、踩坑） |
+| `Video-Slicer-项目复盘.docx` | 整个项目的复盘（产品定位、决策、踩坑） |
 | `PRD/01-overview.md` | 产品定位 + 4 步流程 |
 | `PRD/03-design-handoff.md` | 设计交接清单（这是设计起点） |
 | `PRD/04-pages-components.md` | 所有页面/组件清单 |
