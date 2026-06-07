@@ -1,0 +1,2205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F4F4F2" />
+<title>Brief Cut — AI 自动剪辑切片平台</title>
+<meta name="description" content="创意不设限，切片不费力——Brief Cut，让每一段高光都自动出彩！" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" />
+<style>
+/* =========================================================
+   Brief Cut — styles.css
+   Strictly follows DESIGN.md tokens & rules.
+   ========================================================= */
+
+/* ---------- 1. Tokens ---------- */
+:root {
+  --bg:            #F4F4F2;
+  --surface:       #FFFFFF;
+  --surface-alt:   #ECECE8;
+  --surface-hover: #E6E6E2;
+  --surface-dark:  #1A1B1E;
+
+  --border:        rgba(26, 27, 30, 0.08);
+  --border-hover:  rgba(26, 27, 30, 0.16);
+  --border-strong: rgba(26, 27, 30, 0.24);
+
+  --text:           #1A1B1E;
+  --text-secondary: #4A4D52;
+  --text-tertiary:  #8A8E94;
+  --text-on-dark:   #F4F4F2;
+  --text-on-accent: #0E1A05;
+
+  --accent:         #B8F24A;
+  --accent-soft:    #D5F894;
+  --accent-deep:    #7CE15B;
+  --accent-hover:   #C8FF6B;
+  --accent-tint:    #FBFFEF;          /* 极浅绿，用于 featured 卡片底 */
+  --accent-text:    #2A4F0A;          /* 强调色上的深绿文字 */
+  --surface-dark-hover: #2C2E32;      /* 深色按钮 hover */
+  --logo-icon:     url('data:image/png;base64,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');
+  --accent-gradient: linear-gradient(135deg, #D5F894 0%, #B8F24A 45%, #7CE15B 100%);
+
+  --bg-rgb:        244, 244, 242;
+  --text-rgb:      26, 27, 30;
+  --accent-rgb:    184, 242, 74;
+
+  --success: #34C759;
+  --error:   #FF453A;
+  --warning: #FFB020;
+
+  --font-sans: 'Inter', 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Inter', 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', monospace;
+
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px;
+
+  --ease-out: cubic-bezier(.2,.8,.2,1);
+}
+
+/* ---------- 2. Reset / base ---------- */
+*,*::before,*::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+:lang(zh-CN), [lang="zh-CN"] { letter-spacing: 0.02em; }
+
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+h1,h2,h3,h4 { margin: 0; font-family: var(--font-display); }
+p { margin: 0; }
+
+/* Grain noise — atmosphere layer */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+
+/* Page routes */
+.page { position: relative; z-index: 1; }
+.page[hidden] { display: none; }
+
+/* ---------- 3. Container ---------- */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+}
+.container-narrow { max-width: 880px; }
+
+/* ---------- 4. Typography helpers ---------- */
+.eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding-bottom: 18px;
+}
+.section-h2 {
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.section-sub {
+  margin-top: 18px;
+  font-size: clamp(16px, 1.4vw, 20px);
+  color: var(--text-secondary);
+  max-width: 640px;
+}
+.section { padding: clamp(80px, 12vw, 160px) 0; }
+.section-alt { background: var(--surface-alt); }
+.section-head { margin-bottom: clamp(40px, 6vw, 80px); }
+
+/* ---------- 5. Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform .2s var(--ease-out),
+              box-shadow .25s ease,
+              background .25s ease,
+              color .2s ease,
+              border-color .2s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn-primary {
+  padding: 22px 44px;
+  font-size: clamp(16px, 1.4vw, 20px);
+  color: var(--text-on-accent);
+  background: var(--accent-gradient);
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  box-shadow: 0 8px 24px -8px rgba(var(--accent-rgb), .45),
+              inset 0 1px 0 rgba(255,255,255,.4);
+  animation: gradientFlow 6s linear infinite;
+}
+.btn-primary:hover {
+  background-position: 100% 50%;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -10px rgba(var(--accent-rgb), .6),
+              inset 0 1px 0 rgba(255,255,255,.5);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:focus-visible {
+  outline: 3px solid rgba(var(--accent-rgb), .6);
+  outline-offset: 4px;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  color: var(--text);
+  background: var(--surface-alt);
+}
+.btn-secondary:hover { background: var(--surface-hover); }
+.btn-secondary:focus-visible { outline: 2px solid var(--border-strong); outline-offset: 2px; }
+
+.btn-dark {
+  padding: 10px 22px;
+  color: var(--text-on-dark);
+  background: var(--surface-dark);
+}
+.btn-dark:hover { background: var(--surface-dark-hover); transform: translateY(-1px); }
+.btn-dark:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@keyframes gradientFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---------- 6. Nav ---------- */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px clamp(20px, 4vw, 48px);
+  display: flex; align-items: center; justify-content: space-between;
+  background: transparent;
+  transition: background .3s ease, backdrop-filter .3s ease,
+              border-color .3s ease, padding .3s ease;
+  border-bottom: 1px solid transparent;
+}
+.nav.is-scrolled {
+  padding: 14px clamp(20px, 4vw, 48px);
+  background: rgba(var(--bg-rgb), .82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: var(--border);
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-brand .dot {
+  width: 36px; height: 36px;
+  background: var(--logo-icon) center/contain no-repeat;
+  filter: drop-shadow(0 4px 10px rgba(var(--accent-rgb), .4));
+  flex-shrink: 0;
+}
+.nav-actions { display: flex; gap: 10px; align-items: center; }
+
+/* ---------- 7. Hero ---------- */
+.hero {
+  position: relative;
+  padding: clamp(140px, 18vw, 220px) 0 clamp(80px, 12vw, 140px);
+  text-align: center;
+  overflow: hidden;
+}
+.hero-inner { position: relative; z-index: 2; }
+.hero-eyebrow {
+  opacity: 0;
+  letter-spacing: 0;
+  animation: eyebrowSpread 1s ease .05s forwards;
+}
+@keyframes eyebrowSpread {
+  to { opacity: 1; letter-spacing: 0.16em; }
+}
+.hero-h1 {
+  font-size: clamp(56px, 9vw, 144px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  clip-path: inset(0 100% 0 0);
+  animation: heroReveal 1.1s var(--ease-out) .15s forwards;
+}
+@keyframes heroReveal {
+  to { clip-path: inset(0 0% 0 0); }
+}
+.hero-sub {
+  margin-top: 28px;
+  font-size: clamp(16px, 1.6vw, 22px);
+  color: var(--text-secondary);
+  max-width: 720px;
+  margin-left: auto; margin-right: auto;
+  opacity: 0; transform: translateY(16px);
+  animation: fadeUp .7s ease .9s forwards;
+}
+.hero-cta {
+  margin-top: 48px;
+  opacity: 0; transform: translateY(16px);
+  animation: fadeUp .7s ease 1.15s forwards, gradientFlow 6s linear infinite 1.85s;
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+.hero-meta {
+  margin-top: 36px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  display: inline-flex; align-items: center; gap: 8px;
+  opacity: 0;
+  animation: fadeUp .7s ease 1.4s forwards;
+}
+.hero-meta strong { color: var(--text); font-weight: 700; }
+.meta-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-deep);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), .22);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 4px rgba(var(--accent-rgb), .22); }
+  50%     { box-shadow: 0 0 0 8px rgba(var(--accent-rgb), 0);   }
+}
+
+.hero-bg { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .55;
+}
+.blob-1 {
+  width: 520px; height: 520px;
+  left: -160px; top: 20%;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .35), transparent 70%);
+}
+.blob-2 {
+  width: 600px; height: 600px;
+  right: -200px; bottom: -20%;
+  background: radial-gradient(circle, rgba(124, 225, 91, .25), transparent 70%);
+}
+
+/* ---------- 8. Marquee ---------- */
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--border);
+  padding-block: clamp(28px, 4vw, 56px);
+  background: var(--surface-alt);
+}
+.marquee-track {
+  display: flex; gap: 80px;
+  white-space: nowrap;
+  animation: marquee 36s linear infinite;
+  will-change: transform;
+  width: max-content;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-item {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 120px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+}
+.marquee-item.is-accent {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ---------- 9. Reveal helpers ---------- */
+[data-reveal] {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .8s var(--ease-out), transform .8s var(--ease-out);
+}
+[data-reveal].is-in { opacity: 1; transform: translateY(0); }
+[data-reveal][data-delay="1"].is-in { transition-delay: .08s; }
+[data-reveal][data-delay="2"].is-in { transition-delay: .16s; }
+[data-reveal][data-delay="3"].is-in { transition-delay: .24s; }
+[data-reveal][data-delay="4"].is-in { transition-delay: .32s; }
+
+.h2-reveal {
+  letter-spacing: 0.04em;
+}
+.h2-reveal.is-in {
+  letter-spacing: -0.03em;
+  transition: opacity .9s var(--ease-out),
+              letter-spacing .9s var(--ease-out),
+              transform .9s var(--ease-out);
+}
+
+/* ---------- 10. Tags ---------- */
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.tag-accent {
+  background: rgba(var(--accent-rgb), .15);
+  border-color: rgba(var(--accent-rgb), .4);
+  color: var(--accent-text);
+}
+
+/* ---------- 11. Cards (generic + spotlight) ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  transition: transform .3s var(--ease-out),
+              border-color .25s ease,
+              box-shadow .3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-hover);
+  box-shadow: 0 24px 48px -16px rgba(var(--text-rgb), .12);
+}
+.card:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .25);
+}
+.card-spotlight { --mx: 50%; --my: 50%; }
+.card-spotlight::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(420px circle at var(--mx) var(--my),
+                              rgba(var(--accent-rgb), .22), transparent 60%);
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+.card-spotlight:hover::before { opacity: 1; }
+
+/* ---------- 12. Bento ---------- */
+.grid-bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: minmax(220px, auto);
+  gap: 20px;
+}
+.bento { display: flex; flex-direction: column; gap: 16px; min-height: 320px; }
+.bento-head { display: flex; align-items: center; justify-content: space-between; }
+.bento-num {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+}
+.bento-title {
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.bento-desc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.bento-1 { grid-column: span 4; grid-row: span 2; }
+.bento-2 { grid-column: span 2; grid-row: span 2; }
+.bento-3 { grid-column: span 3; }
+.bento-4 { grid-column: span 3; }
+
+/* Bento viz – clips bar */
+.bento-viz {
+  margin-top: auto;
+  display: grid; grid-template-columns: 1fr 2fr 1.5fr 2.4fr 1.2fr;
+  gap: 8px;
+  height: 88px;
+}
+.bento-viz .clip {
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--surface-alt), var(--surface-hover));
+  position: relative; overflow: hidden;
+}
+.bento-viz .clip::after {
+  content: '';
+  position: absolute; left: 8px; right: 8px; bottom: 8px; height: 4px;
+  border-radius: 99px;
+  background: var(--border);
+}
+.bento-viz .clip-c { background: var(--accent-gradient); }
+.bento-viz .clip-c::after { background: rgba(0,0,0,.18); }
+
+/* quote list */
+.quote-list { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.quote-list li {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  font-size: 13px; color: var(--text-secondary);
+}
+.quote-list li span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* title chips */
+.title-chips { margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px; }
+.title-chips span {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  transition: background .2s, color .2s, transform .2s;
+}
+.title-chips span.active {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  transform: scale(1.06);
+}
+
+/* ratios */
+.ratio-row { margin-top: auto; display: flex; gap: 16px; align-items: flex-end; }
+.ratio {
+  display: grid; place-items: center;
+  background: var(--surface-alt);
+  border-radius: 10px;
+  position: relative;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.ratio em { font-style: normal; }
+.r-9-16  { width: 36px; height: 64px; }
+.r-1-1   { width: 56px; height: 56px; background: var(--accent); color: var(--text-on-accent); }
+.r-16-9  { width: 88px; height: 50px; }
+
+/* ---------- 13. Workflow ---------- */
+.workflow-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  counter-reset: step;
+}
+.workflow-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 36px 32px;
+  transition: transform .3s var(--ease-out), border-color .25s, box-shadow .3s;
+}
+.workflow-step:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-hover);
+  box-shadow: 0 24px 48px -16px rgba(var(--text-rgb), .12);
+}
+.workflow-step .step-num {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  margin-bottom: 18px;
+}
+.workflow-step h3 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.workflow-step p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; }
+
+/* ---------- 14. Stats + Testimonial ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 40px 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  margin-bottom: 56px;
+}
+.stat { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.stat-unit {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 18px; font-weight: 700; color: var(--text-tertiary);
+}
+.stat-label {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.testimonial-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.testimonial blockquote {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+}
+.testimonial blockquote strong { background: linear-gradient(transparent 60%, rgba(var(--accent-rgb), .5) 60%); font-weight: 700; }
+.testimonial figcaption {
+  margin-top: 24px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: var(--text-secondary);
+}
+.testimonial figcaption b { color: var(--text); font-weight: 700; display: block; }
+.testimonial figcaption span { font-size: 12px; color: var(--text-tertiary); }
+.testimonial .avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  font-weight: 800;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* ---------- 15. Pricing ---------- */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: stretch;
+}
+.price-card {
+  display: flex; flex-direction: column; gap: 24px;
+}
+.price-card.is-featured {
+  border-color: rgba(var(--accent-rgb), .55);
+  background: linear-gradient(180deg, var(--accent-tint), var(--surface));
+  position: relative;
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px -20px rgba(var(--accent-rgb), .35);
+}
+.price-card .ribbon {
+  position: absolute; top: 16px; right: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.price-head { display: flex; flex-direction: column; gap: 12px; }
+.price-num {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4.4vw, 56px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.price-num small {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0;
+}
+.price-desc { color: var(--text-secondary); font-size: 14px; }
+.price-list {
+  display: flex; flex-direction: column; gap: 10px;
+  flex: 1;
+}
+.price-list li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+.price-list li::before {
+  content: '';
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230E1A05' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center/12px no-repeat;
+  flex-shrink: 0;
+}
+.price-cta { align-self: stretch; justify-content: center; }
+.price-card .btn-secondary { padding: 14px 24px; }
+.price-card .btn-primary { padding: 16px 24px; font-size: 15px; }
+
+/* ---------- 16. FAQ ---------- */
+.faq-list { display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px 28px;
+  transition: border-color .2s, box-shadow .3s;
+}
+.faq-item:hover { border-color: var(--border-hover); }
+.faq-item[open] { box-shadow: 0 24px 48px -24px rgba(var(--text-rgb), .12); }
+.faq-item summary {
+  list-style: none;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+  font-size: clamp(16px, 1.4vw, 18px);
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-icon {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  display: grid; place-items: center;
+  font-size: 18px; font-weight: 500;
+  line-height: 1;
+  transition: transform .25s, background .25s, color .25s;
+  color: var(--text-secondary);
+}
+.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+.faq-item p {
+  margin-top: 14px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+/* ---------- 17. Footer ---------- */
+.footer {
+  position: relative;
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+  padding: clamp(80px, 10vw, 140px) 0 40px;
+}
+.footer-cta {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 36px;
+  padding-bottom: clamp(60px, 8vw, 100px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.footer-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 88px);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: var(--text-on-dark);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  padding: 64px 0 32px;
+}
+.footer-brand p { color: rgba(244,244,242,.55); font-size: 14px; line-height: 1.7; margin-top: 16px; }
+.footer-col h4 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(244,244,242,.5);
+  margin-bottom: 18px;
+}
+.footer-col a {
+  display: block;
+  font-size: 14px;
+  padding: 6px 0;
+  color: rgba(244,244,242,.85);
+  transition: color .2s, transform .2s;
+}
+.footer-col a:hover { color: var(--accent); transform: translateX(3px); }
+.footer-bottom {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  font-size: 12px;
+  color: rgba(244,244,242,.4);
+}
+
+/* ============================================================
+   WORKSPACE (#/app)
+   ============================================================ */
+#page-workspace {
+  padding: 20px;
+  min-height: 100vh;
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  min-height: calc(100vh - 40px);
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--surface-alt);
+  border-radius: 28px;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  height: calc(100vh - 40px);
+  position: sticky; top: 20px;
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+.sidebar-user .avatar {
+  width: 40px; height: 40px;
+  background: var(--logo-icon) center/contain no-repeat;
+  filter: drop-shadow(0 2px 6px rgba(var(--accent-rgb), .35));
+  flex-shrink: 0;
+}
+.sidebar-user-meta { display: flex; flex-direction: column; line-height: 1.25; }
+.sidebar-user-meta b { font-weight: 700; color: var(--text); font-size: 15px; }
+.sidebar-user-meta span { font-size: 12px; color: var(--text-tertiary); }
+
+.sidebar-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-size: 15px; font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background .2s, color .2s, transform .2s;
+}
+.sidebar-item:hover { background: var(--surface); color: var(--text); }
+.sidebar-item.is-active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 0 var(--border), 0 8px 16px -10px rgba(var(--text-rgb),.1);
+}
+.sidebar-item .bullet {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: background .2s, transform .2s;
+}
+.sidebar-item.is-active .bullet { background: var(--accent); }
+.sidebar-foot { margin-top: auto; padding: 12px 14px; }
+
+/* Workspace main */
+.workspace-main {
+  display: flex; flex-direction: column; gap: 28px;
+  min-width: 0;
+}
+.workspace-top {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 4px 0;
+}
+.workspace-crumb {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.workspace-tools { display: flex; gap: 10px; }
+
+.icon-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  color: var(--text-secondary);
+  transition: background .2s, color .2s, border-color .2s, transform .2s;
+}
+.icon-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+.icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Create CTA */
+.create-cta {
+  display: flex; align-items: center; justify-content: center; gap: 28px;
+  width: 100%;
+  padding: clamp(40px, 6vw, 72px) clamp(28px, 4vw, 56px);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  cursor: pointer;
+  transition: transform .3s var(--ease-out),
+              background .25s, border-color .25s, box-shadow .3s;
+  text-align: left;
+}
+.create-cta:hover {
+  transform: translateY(-3px);
+  background: var(--surface);
+  border-color: rgba(var(--accent-rgb), .5);
+  box-shadow: 0 24px 48px -20px rgba(var(--accent-rgb), .3);
+}
+.create-cta:focus-visible { outline: 3px solid rgba(var(--accent-rgb), .6); outline-offset: 4px; }
+.create-cta .plus {
+  width: 72px; height: 72px;
+  border-radius: 20px;
+  background: var(--surface);
+  display: grid; place-items: center;
+  color: var(--text);
+  box-shadow: 0 8px 20px -8px rgba(var(--text-rgb), .15);
+  transition: background .25s, transform .35s var(--ease-out), color .25s;
+  flex-shrink: 0;
+}
+.create-cta:hover .plus {
+  background: var(--accent);
+  transform: rotate(90deg);
+}
+.create-cta .label {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* Feature row (workspace) */
+.feature-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 16px 0;
+}
+.feature-item {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding: 12px;
+  border-radius: 20px;
+  transition: background .2s;
+}
+.feature-item:hover { background: var(--surface-alt); }
+.feature-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.feature-circle {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  color: var(--text-secondary);
+  transition: transform .25s var(--ease-out), background .2s, color .2s, border-color .2s, box-shadow .3s;
+}
+.feature-item:hover .feature-circle {
+  transform: translateY(-3px) scale(1.04);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+  box-shadow: 0 16px 32px -16px rgba(var(--accent-rgb), .5);
+}
+.feature-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.feature-item:hover .feature-label { color: var(--text); }
+
+/* Recent */
+.recent { margin-top: 8px; }
+.recent-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 18px;
+}
+.recent-head h3 {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+}
+.recent-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* History */
+.history-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 20px;
+  margin-top: 4px;
+}
+.history-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.history-sub { color: var(--text-secondary); font-size: 14px; }
+.history-actions {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-tertiary);
+  transition: border-color .2s, box-shadow .2s;
+}
+.search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .22);
+  color: var(--text);
+}
+.search input {
+  border: none; outline: none; background: transparent;
+  font: inherit; color: var(--text);
+  min-width: 200px;
+}
+.search input::placeholder { color: var(--text-tertiary); }
+
+.seg {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.seg-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  transition: background .2s, color .2s;
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn.is-active {
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+}
+
+/* History grid */
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+.work-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform .3s var(--ease-out), border-color .25s, box-shadow .3s;
+}
+.work-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-hover);
+  box-shadow: 0 24px 48px -20px rgba(var(--text-rgb), .12);
+}
+.work-thumb {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--surface-alt), var(--surface-hover));
+}
+.work-thumb::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(var(--accent-rgb), .35), transparent 55%),
+    radial-gradient(circle at 80% 70%, rgba(124, 225, 91, .25), transparent 55%);
+}
+.work-thumb .play {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: rgba(26, 27, 30, .82);
+  color: var(--text-on-dark);
+  display: grid; place-items: center;
+  backdrop-filter: blur(6px);
+  transition: transform .25s, background .25s;
+}
+.work-card:hover .play { transform: translate(-50%, -50%) scale(1.08); background: var(--text); }
+.work-thumb .duration {
+  position: absolute; right: 10px; bottom: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(26, 27, 30, .72);
+  color: var(--text-on-dark);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.work-thumb .tag {
+  position: absolute; left: 10px; top: 10px;
+  background: rgba(255,255,255,.92);
+}
+.work-meta { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+.work-meta h4 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+.work-meta .work-time { color: var(--text-tertiary); font-size: 12px; }
+
+/* Empty state */
+.history-empty {
+  margin-top: 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  padding: 80px 40px;
+  background: var(--surface);
+  border: 1px dashed var(--border-hover);
+  border-radius: 28px;
+  text-align: center;
+}
+.history-empty h3 {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.01em;
+}
+.history-empty p {
+  color: var(--text-secondary);
+  max-width: 360px;
+  font-size: 14px;
+}
+.empty-illustration {
+  position: relative;
+  width: 180px; height: 110px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.empty-illustration .film {
+  width: 46px; height: 80px;
+  background: var(--surface-alt);
+  border-radius: 10px;
+  position: relative;
+}
+.empty-illustration .film::before,
+.empty-illustration .film::after {
+  content: '';
+  position: absolute; left: 6px; right: 6px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+}
+.empty-illustration .film::before { top: 8px; }
+.empty-illustration .film::after  { bottom: 8px; }
+.empty-illustration .film:nth-child(2) { transform: translateY(-6px); background: var(--accent); }
+.empty-illustration .film:nth-child(2)::before,
+.empty-illustration .film:nth-child(2)::after { background: rgba(0,0,0,.18); }
+.empty-illustration .empty-cut {
+  position: absolute; left: 50%; top: -10px; bottom: -10px;
+  width: 2px; transform: translateX(-50%);
+  background: var(--text);
+  border-radius: 2px;
+  animation: cutPulse 2.4s ease-in-out infinite;
+}
+@keyframes cutPulse {
+  0%, 100% { transform: translateX(-50%) scaleY(.6); opacity: .35; }
+  50%      { transform: translateX(-50%) scaleY(1);  opacity: .9;  }
+}
+
+/* drawer (mobile) */
+.drawer-toggle {
+  display: none;
+  position: fixed; top: 18px; left: 18px;
+  z-index: 60;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  align-items: center; justify-content: center;
+  box-shadow: 0 6px 16px -8px rgba(var(--text-rgb), .15);
+}
+.drawer-mask {
+  position: fixed; inset: 0;
+  z-index: 40;
+  background: rgba(0,0,0,.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  left: 50%; bottom: 32px;
+  transform: translate(-50%, 20px);
+  z-index: 200;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+  font-size: 14px; font-weight: 500;
+  box-shadow: 0 20px 40px -12px rgba(0,0,0,.35);
+  opacity: 0;
+  transition: opacity .25s, transform .3s var(--ease-out);
+  pointer-events: none;
+}
+.toast.is-show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 1023px) {
+  .nav { padding: 14px 20px; }
+  .nav.is-scrolled { padding: 10px 20px; }
+  .grid-bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
+  .grid-bento > * { grid-column: span 1 !important; grid-row: span 1 !important; min-height: 280px; }
+  .workflow-list { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 32px; padding: 32px; }
+  .testimonial-row { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card.is-featured { transform: none; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+
+  /* Workspace as drawer */
+  .workspace-grid { grid-template-columns: 1fr; gap: 16px; }
+  .drawer-toggle { display: grid; }
+  .sidebar {
+    position: fixed; left: -280px; top: 0; bottom: 0;
+    width: 260px; height: 100vh;
+    border-radius: 0 28px 28px 0;
+    z-index: 50;
+    transition: left .35s var(--ease-out);
+  }
+  body.drawer-open .sidebar { left: 0; box-shadow: 0 40px 80px -20px rgba(0,0,0,.25); }
+  body:not(.drawer-open) .drawer-mask { display: none; }
+  .workspace-top { padding-top: 36px; }
+  #page-workspace { padding: 16px; }
+  .feature-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 20px; }
+  .hero { padding: 120px 0 80px; }
+  .hero-cta { width: 100%; }
+  .btn-primary { width: 100%; padding: 18px 28px; }
+  .nav-actions .btn-secondary { display: none; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-bottom { justify-content: center; text-align: center; }
+  .create-cta { flex-direction: column; padding: 36px 20px; gap: 18px; text-align: center; }
+  .create-cta .plus { width: 56px; height: 56px; }
+  .feature-circle { width: 76px; height: 76px; }
+  .history-actions { width: 100%; }
+  .history-actions .search,
+  .history-actions .seg { width: 100%; }
+  .search input { width: 100%; }
+  .seg { overflow-x: auto; flex-wrap: nowrap; }
+}
+
+@media (hover: none) {
+  .card:hover,
+  .work-card:hover,
+  .workflow-step:hover,
+  .feature-item:hover .feature-circle,
+  .create-cta:hover,
+  .btn-primary:hover,
+  .btn-dark:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .hero-h1 { clip-path: none; }
+  .hero-eyebrow, .hero-sub, .hero-cta, .hero-meta { opacity: 1; transform: none; }
+  .marquee-track { animation: none; }
+  .btn-primary { animation: none; background-position: 0% 50%; }
+  [data-reveal] { opacity: 1; transform: none; }
+  .meta-dot { animation: none; }
+  .empty-illustration .empty-cut { animation: none; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ===================== LANDING (#/) ===================== -->
+<main id="page-landing" class="page" data-route="/">
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <a href="#/" class="nav-brand" aria-label="Brief Cut 首页">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Brief Cut</span>
+    </a>
+    <nav class="nav-actions" aria-label="主要操作">
+      <a class="btn btn-secondary" href="#/app" data-nav-login>登录</a>
+      <a class="btn btn-dark" href="#/app" data-nav-register>注册</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <span class="eyebrow hero-eyebrow">BRIEF&nbsp;·&nbsp;CUT&nbsp;·&nbsp;AI&nbsp;·&nbsp;VIDEO</span>
+      <h1 class="hero-h1">AI&nbsp;自动剪辑切片平台</h1>
+      <p class="hero-sub">创意不设限，切片不费力——Brief Cut，让每一段高光都自动出彩！</p>
+      <a class="btn btn-primary hero-cta" href="#/app" aria-label="立即免费体验 Brief Cut">
+        <span>立即免费体验</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <div class="hero-meta">
+        <span class="meta-dot"></span>
+        <span>1 分钟上手 · 已生成 <strong>1,280,400+</strong> 条短视频</span>
+      </div>
+    </div>
+    <div class="hero-bg" aria-hidden="true">
+      <span class="hero-blob blob-1"></span>
+      <span class="hero-blob blob-2"></span>
+    </div>
+  </section>
+
+  <!-- MARQUEE / 宣言横滚带 -->
+  <section class="marquee" aria-label="品牌宣言">
+    <div class="marquee-track">
+      <span class="marquee-item">让你的每一帧都说话</span>
+      <span class="marquee-item is-accent">Brief&nbsp;Cut</span>
+      <span class="marquee-item">创意不设限</span>
+      <span class="marquee-item is-accent">AI&nbsp;Cut&nbsp;Fast</span>
+      <span class="marquee-item">剪辑不费力</span>
+      <span class="marquee-item is-accent">Brief&nbsp;Cut</span>
+      <!-- duplicate for seamless loop -->
+      <span class="marquee-item" aria-hidden="true">让你的每一帧都说话</span>
+      <span class="marquee-item is-accent" aria-hidden="true">Brief&nbsp;Cut</span>
+      <span class="marquee-item" aria-hidden="true">创意不设限</span>
+      <span class="marquee-item is-accent" aria-hidden="true">AI&nbsp;Cut&nbsp;Fast</span>
+      <span class="marquee-item" aria-hidden="true">剪辑不费力</span>
+      <span class="marquee-item is-accent" aria-hidden="true">Brief&nbsp;Cut</span>
+    </div>
+  </section>
+
+  <!-- FEATURES (Bento) -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>FEATURES&nbsp;·&nbsp;四大能力</span>
+        <h2 class="section-h2 h2-reveal" data-reveal>一句话生成短视频，<br/>把素材交给 AI。</h2>
+        <p class="section-sub" data-reveal data-delay="1">从原始素材到爆款短视频，Brief Cut 用四个动作走完全流程。</p>
+      </div>
+
+      <div class="grid-bento">
+        <article class="card card-spotlight bento bento-1" data-reveal>
+          <div class="bento-head">
+            <span class="tag tag-accent">智能切片</span>
+            <span class="bento-num">01</span>
+          </div>
+          <h3 class="bento-title">把一小时长片，<br/>切成 30 条爆款。</h3>
+          <p class="bento-desc">AI 自动识别高光、转场、人物镜头，按情绪曲线一键拆条，节省 90% 时间。</p>
+          <div class="bento-viz" aria-hidden="true">
+            <span class="clip clip-a"></span>
+            <span class="clip clip-b"></span>
+            <span class="clip clip-c"></span>
+            <span class="clip clip-d"></span>
+            <span class="clip clip-e"></span>
+          </div>
+        </article>
+
+        <article class="card card-spotlight bento bento-2" data-reveal data-delay="1">
+          <div class="bento-head">
+            <span class="tag">金句生成</span>
+            <span class="bento-num">02</span>
+          </div>
+          <h3 class="bento-title">从口播里捞出"金句"</h3>
+          <p class="bento-desc">语义模型自动定位高能段落，输出带时间戳的金句清单。</p>
+          <ul class="quote-list" aria-hidden="true">
+            <li>"真正的剪辑，是讲一个故事。" <span>00:42</span></li>
+            <li>"AI 帮你找到那一帧。" <span>02:18</span></li>
+            <li>"让创作者只做创作。" <span>05:07</span></li>
+          </ul>
+        </article>
+
+        <article class="card card-spotlight bento bento-3" data-reveal data-delay="2">
+          <div class="bento-head">
+            <span class="tag">标题生成</span>
+            <span class="bento-num">03</span>
+          </div>
+          <h3 class="bento-title">标题写不出？</h3>
+          <p class="bento-desc">10 种风格一键切换。</p>
+          <div class="title-chips" aria-hidden="true">
+            <span>悬念</span><span>反转</span><span>共情</span>
+            <span class="active">爆点</span><span>科普</span>
+          </div>
+        </article>
+
+        <article class="card card-spotlight bento bento-4" data-reveal data-delay="3">
+          <div class="bento-head">
+            <span class="tag">尺寸设计</span>
+            <span class="bento-num">04</span>
+          </div>
+          <h3 class="bento-title">一稿适配全平台</h3>
+          <p class="bento-desc">9:16 抖音 · 1:1 小红书 · 16:9 B 站，自动重构画面焦点。</p>
+          <div class="ratio-row" aria-hidden="true">
+            <span class="ratio r-9-16"><em>9:16</em></span>
+            <span class="ratio r-1-1"><em>1:1</em></span>
+            <span class="ratio r-16-9"><em>16:9</em></span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW -->
+  <section class="section section-alt" id="workflow">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>WORKFLOW&nbsp;·&nbsp;三步走完</span>
+        <h2 class="section-h2 h2-reveal" data-reveal>从原片到成片，<br/>只需要三步。</h2>
+      </div>
+      <ol class="workflow-list">
+        <li class="workflow-step" data-reveal>
+          <span class="step-num">01</span>
+          <h3>上传素材</h3>
+          <p>拖入本地视频，或粘贴 B 站 / 抖音 / YouTube 链接，单文件最大 8 GB。</p>
+        </li>
+        <li class="workflow-step" data-reveal data-delay="1">
+          <span class="step-num">02</span>
+          <h3>AI 自动处理</h3>
+          <p>识别高光、生成金句、起标题、适配尺寸，平均 90 秒完成一条 10 分钟原片。</p>
+        </li>
+        <li class="workflow-step" data-reveal data-delay="2">
+          <span class="step-num">03</span>
+          <h3>一键导出</h3>
+          <p>导出 MP4 / 抖音模板 / 剪映工程，附带封面、标题、话题标签。</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- SHOWCASE / 数据条 -->
+  <section class="section" id="showcase">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>SHOWCASE&nbsp;·&nbsp;创作者都在用</span>
+        <h2 class="section-h2 h2-reveal" data-reveal>已经有 12,800+ 创作者，<br/>把素材交给 Brief Cut。</h2>
+      </div>
+      <div class="stats">
+        <div class="stat" data-reveal>
+          <span class="stat-num" data-count="128">0</span><span class="stat-unit">k+</span>
+          <span class="stat-label">月活创作者</span>
+        </div>
+        <div class="stat" data-reveal data-delay="1">
+          <span class="stat-num" data-count="1280">0</span><span class="stat-unit">万</span>
+          <span class="stat-label">已生成短视频</span>
+        </div>
+        <div class="stat" data-reveal data-delay="2">
+          <span class="stat-num" data-count="92">0</span><span class="stat-unit">%</span>
+          <span class="stat-label">用户节省时间</span>
+        </div>
+        <div class="stat" data-reveal data-delay="3">
+          <span class="stat-num" data-count="60">0</span><span class="stat-unit">s</span>
+          <span class="stat-label">平均出片时长</span>
+        </div>
+      </div>
+
+      <div class="testimonial-row">
+        <figure class="testimonial card" data-reveal>
+          <blockquote>"原来一天剪一条，现在一天发七条，<strong>选题和文案全交给 Brief Cut</strong>。"</blockquote>
+          <figcaption><span class="avatar">林</span><div><b>林晓</b><span>知识区博主 · 87 万粉</span></div></figcaption>
+        </figure>
+        <figure class="testimonial card" data-reveal data-delay="1">
+          <blockquote>"AI 切片的节奏感比我自己剪还稳，<strong>最关键是不用再调时间轴</strong>。"</blockquote>
+          <figcaption><span class="avatar">Alex</span><div><b>Alex Wu</b><span>短视频工作室主理人</span></div></figcaption>
+        </figure>
+        <figure class="testimonial card" data-reveal data-delay="2">
+          <blockquote>"团队 5 个人现在每天产出 30+ 条横竖屏视频，<strong>素材库再也不积压了</strong>。"</blockquote>
+          <figcaption><span class="avatar">Mia</span><div><b>Mia Zhang</b><span>MCN 内容总监</span></div></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section section-alt" id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>PRICING&nbsp;·&nbsp;按需选择</span>
+        <h2 class="section-h2 h2-reveal" data-reveal>从免费开始，<br/>用得多再升级。</h2>
+      </div>
+      <div class="pricing-grid">
+        <article class="card price-card" data-reveal>
+          <div class="price-head">
+            <span class="tag">免费版</span>
+            <h3 class="price-num">¥0<small>/月</small></h3>
+            <p class="price-desc">个人创作者的轻量起步。</p>
+          </div>
+          <ul class="price-list">
+            <li>每月 30 分钟原片处理</li>
+            <li>4 种基础功能全开放</li>
+            <li>导出带水印</li>
+            <li>社区支持</li>
+          </ul>
+          <a class="btn btn-secondary price-cta" href="#/app">免费开始</a>
+        </article>
+
+        <article class="card price-card is-featured" data-reveal data-delay="1">
+          <span class="ribbon">最受欢迎</span>
+          <div class="price-head">
+            <span class="tag tag-accent">专业版</span>
+            <h3 class="price-num">¥39<small>/月</small></h3>
+            <p class="price-desc">让 AI 接管你 90% 的剪辑工作。</p>
+          </div>
+          <ul class="price-list">
+            <li>每月 30 小时原片处理</li>
+            <li>四大能力 + 高级模板</li>
+            <li>导出无水印 · 4K</li>
+            <li>优先队列 · 邮件支持</li>
+          </ul>
+          <a class="btn btn-primary price-cta" href="#/app">立即升级</a>
+        </article>
+
+        <article class="card price-card" data-reveal data-delay="2">
+          <div class="price-head">
+            <span class="tag">团队版</span>
+            <h3 class="price-num">¥199<small>/月</small></h3>
+            <p class="price-desc">MCN / 工作室的协作中心。</p>
+          </div>
+          <ul class="price-list">
+            <li>5 个席位起 · 不限时长</li>
+            <li>团队素材库 · 多人协作</li>
+            <li>API 接入 · 自定义模板</li>
+            <li>专属客户经理</li>
+          </ul>
+          <a class="btn btn-secondary price-cta" href="#/app">联系销售</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container container-narrow">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>FAQ&nbsp;·&nbsp;常见问题</span>
+        <h2 class="section-h2 h2-reveal" data-reveal>你想问的，<br/>这里都有答案。</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item" data-reveal>
+          <summary>Brief Cut 支持哪些素材格式？<span class="faq-icon" aria-hidden="true">+</span></summary>
+          <p>支持 MP4 / MOV / MKV / AVI / WebM 等主流格式，单文件最大 8 GB，也支持粘贴 B 站、抖音、YouTube 链接直接处理。</p>
+        </details>
+        <details class="faq-item" data-reveal data-delay="1">
+          <summary>AI 切片的准确率怎么样？<span class="faq-icon" aria-hidden="true">+</span></summary>
+          <p>基于语义 + 视觉双模型，在测试集上高光识别命中率 92.4%。所有自动切片可在编辑器内二次调整。</p>
+        </details>
+        <details class="faq-item" data-reveal data-delay="2">
+          <summary>素材会被用来训练吗？<span class="faq-icon" aria-hidden="true">+</span></summary>
+          <p>不会。默认上传的素材在处理完成 7 天后自动删除，且不会进入任何模型训练流程。可在设置里开启"立即删除"。</p>
+        </details>
+        <details class="faq-item" data-reveal data-delay="3">
+          <summary>能不能在剪映 / Pr 里继续编辑？<span class="faq-icon" aria-hidden="true">+</span></summary>
+          <p>可以。专业版及以上支持导出剪映 draft / Premiere XML 工程文件，所有切片、字幕、标题都保留。</p>
+        </details>
+        <details class="faq-item" data-reveal data-delay="4">
+          <summary>团队版能开多少席位？<span class="faq-icon" aria-hidden="true">+</span></summary>
+          <p>团队版起步 5 席位，可按需扩展至 50 席。50 席以上请联系销售获得企业方案。</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-cta">
+        <h2 class="footer-h2">把素材交给 AI，<br/>把时间还给创作。</h2>
+        <a class="btn btn-primary" href="#/app">立即免费体验
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#/" class="nav-brand" style="color:var(--text-on-dark)">
+            <span class="dot" aria-hidden="true"></span><span>Brief Cut</span>
+          </a>
+          <p>创意不设限，剪辑不费力。<br/>让你的每一帧都说话。</p>
+        </div>
+        <div class="footer-col">
+          <h4>产品</h4>
+          <a href="#features">智能切片</a>
+          <a href="#features">金句生成</a>
+          <a href="#features">标题生成</a>
+          <a href="#features">尺寸设计</a>
+        </div>
+        <div class="footer-col">
+          <h4>资源</h4>
+          <a href="#pricing">价格</a>
+          <a href="#faq">FAQ</a>
+          <a href="#/app">登录</a>
+          <a href="#showcase">案例</a>
+        </div>
+        <div class="footer-col">
+          <h4>关于</h4>
+          <a href="#">关于我们</a>
+          <a href="#">联系方式</a>
+          <a href="#">隐私政策</a>
+          <a href="#">服务条款</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Brief Cut. All rights reserved.</span>
+        <span>Made with care · Beijing</span>
+      </div>
+    </div>
+  </footer>
+</main>
+
+
+<!-- ===================== WORKSPACE (#/app) ===================== -->
+<main id="page-workspace" class="page" data-route="/app" hidden>
+  <button class="drawer-toggle" id="drawerToggle" aria-label="打开侧栏" aria-controls="sidebar" aria-expanded="false">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <div class="workspace-grid">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="工作台导航">
+      <div class="sidebar-user">
+        <span class="avatar" aria-hidden="true"></span>
+        <div class="sidebar-user-meta">
+          <b>姓名</b>
+          <span>免费版</span>
+        </div>
+      </div>
+      <button class="sidebar-item is-active" data-tab="home" aria-current="page">
+        <span class="bullet" aria-hidden="true"></span>
+        <span>首页</span>
+      </button>
+      <button class="sidebar-item" data-tab="history">
+        <span class="bullet" aria-hidden="true"></span>
+        <span>历史记录</span>
+      </button>
+
+      <div class="sidebar-foot">
+        <a href="#/" class="link" style="font-size:13px;color:var(--text-tertiary)">← 返回首页</a>
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <section class="workspace-main">
+      <header class="workspace-top">
+        <div class="workspace-crumb">
+          <span id="wsCrumb">首页</span>
+        </div>
+        <div class="workspace-tools">
+          <button class="icon-btn" aria-label="帮助">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.9.4-1.5 1-1.5 2v.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="12" cy="17.3" r="1" fill="currentColor"/>
+            </svg>
+          </button>
+          <button class="icon-btn" aria-label="反馈">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 5h16v11H8.5L4 19V5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <circle cx="9"  cy="10.5" r="1" fill="currentColor"/>
+              <circle cx="12" cy="10.5" r="1" fill="currentColor"/>
+              <circle cx="15" cy="10.5" r="1" fill="currentColor"/>
+            </svg>
+          </button>
+          <button class="icon-btn" aria-label="设置">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M19.4 13.5a7.5 7.5 0 0 0 0-3l2-1.5-2-3.4-2.3.9a7.5 7.5 0 0 0-2.6-1.5L14 2h-4l-.5 2.5a7.5 7.5 0 0 0-2.6 1.5l-2.3-.9-2 3.4 2 1.5a7.5 7.5 0 0 0 0 3l-2 1.5 2 3.4 2.3-.9a7.5 7.5 0 0 0 2.6 1.5L10 22h4l.5-2.5a7.5 7.5 0 0 0 2.6-1.5l2.3.9 2-3.4-2-1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB: HOME -->
+      <div class="ws-tab" data-tab-content="home">
+        <button class="create-cta" type="button" id="createCta">
+          <span class="plus" aria-hidden="true">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="label">开始创作</span>
+        </button>
+
+        <div class="feature-row" role="list">
+          <button class="feature-item" role="listitem" data-feature="slice">
+            <span class="feature-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M9 6v12M15 6v12" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+            </span>
+            <span class="feature-label">智能切片</span>
+          </button>
+          <button class="feature-item" role="listitem" data-feature="quote">
+            <span class="feature-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 7h4v4c0 2.2-1.3 3.6-3.5 4M14 7h4v4c0 2.2-1.3 3.6-3.5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="feature-label">金句生成</span>
+          </button>
+          <button class="feature-item" role="listitem" data-feature="title">
+            <span class="feature-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 7h12M6 12h12M6 17h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="feature-label">标题生成</span>
+          </button>
+          <button class="feature-item" role="listitem" data-feature="size">
+            <span class="feature-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="4" y="5" width="9" height="14" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+                <rect x="15" y="9" width="5" height="10" rx="1.2" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+            </span>
+            <span class="feature-label">尺寸设计</span>
+          </button>
+        </div>
+
+        <div class="recent">
+          <div class="recent-head">
+            <h3>最近创作</h3>
+            <button class="link" data-go-tab="history">查看全部 →</button>
+          </div>
+          <div class="recent-list" id="recentList">
+            <!-- filled by app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: HISTORY -->
+      <div class="ws-tab" data-tab-content="history" hidden>
+        <header class="history-head">
+          <div>
+            <h2 class="history-title">历史记录</h2>
+            <p class="history-sub">你所有的创作都在这里，随时回看与导出。</p>
+          </div>
+          <div class="history-actions">
+            <div class="search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+                <path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <input id="historySearch" type="search" placeholder="搜索作品 / 标题 / 标签" />
+            </div>
+            <div class="seg" role="tablist" aria-label="筛选">
+              <button class="seg-btn is-active" data-filter="all">全部</button>
+              <button class="seg-btn" data-filter="slice">智能切片</button>
+              <button class="seg-btn" data-filter="quote">金句</button>
+              <button class="seg-btn" data-filter="title">标题</button>
+              <button class="seg-btn" data-filter="size">尺寸</button>
+            </div>
+            <button class="btn btn-dark" id="newFromHistory">＋ 新建</button>
+          </div>
+        </header>
+
+        <div id="historyEmpty" class="history-empty" hidden>
+          <div class="empty-illustration" aria-hidden="true">
+            <span class="film"></span>
+            <span class="film"></span>
+            <span class="film"></span>
+            <span class="empty-cut"></span>
+          </div>
+          <h3>还没有任何记录</h3>
+          <p>开始你的第一次 AI 剪辑，作品会自动保存在这里。</p>
+          <button class="btn btn-primary" id="emptyCreate">＋ 开始创作</button>
+        </div>
+
+        <div id="historyGrid" class="history-grid">
+          <!-- filled by app.js -->
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask" hidden></div>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* =========================================================
+   Brief Cut — app.js
+   Hash router · Reveal · Spotlight · Marquee assist
+   Workspace tabs · History demo (empty / list / search / filter)
+   ========================================================= */
+(() => {
+  'use strict';
+
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hoverable    = matchMedia('(hover: hover)').matches;
+
+  /* ---------- 1. Hash router ---------- */
+  const pages = {
+    '/':    $('#page-landing'),
+    '/app': $('#page-workspace'),
+  };
+
+  function applyRoute() {
+    const raw = (location.hash || '#/').slice(1) || '/';
+    const path = raw.split('?')[0];
+    const route = pages[path] ? path : '/';
+
+    Object.entries(pages).forEach(([p, el]) => {
+      const active = p === route;
+      el.hidden = !active;
+      el.classList.toggle('is-active', active);
+    });
+
+    // reset scroll on route change
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+    if (route === '/app') initWorkspace();
+    else                  closeDrawer();
+
+    // re-run reveal observation on the now-visible page
+    bindReveal();
+  }
+  window.addEventListener('hashchange', applyRoute);
+
+  /* ---------- 2. Nav scrolled state ---------- */
+  const nav = $('#nav');
+  const onScroll = () => nav && nav.classList.toggle('is-scrolled', window.scrollY > 12);
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ---------- 3. Reveal (IntersectionObserver) ---------- */
+  let io;
+  function bindReveal() {
+    if (!('IntersectionObserver' in window)) {
+      $$('[data-reveal]').forEach(el => el.classList.add('is-in'));
+      return;
+    }
+    if (io) io.disconnect();
+    io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-in');
+          io.unobserve(e.target);
+          // count-up trigger
+          if (e.target.matches('.stat')) animateCount(e.target);
+        }
+      }
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+
+    $$('[data-reveal]').forEach(el => {
+      if (!el.classList.contains('is-in')) io.observe(el);
+    });
+  }
+
+  /* ---------- 4. Stat count-up ---------- */
+  function animateCount(stat) {
+    const numEl = stat.querySelector('[data-count]');
+    if (!numEl) return;
+    const target = parseInt(numEl.dataset.count, 10);
+    if (isNaN(target) || reduceMotion) { numEl.textContent = target; return; }
+    const dur = 1200;
+    const start = performance.now();
+    const step = (t) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      numEl.textContent = Math.round(target * eased).toLocaleString('en-US');
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- 5. Spotlight cards (rAF throttled) ---------- */
+  let spotRaf = 0;
+  function bindSpotlight() {
+    if (!hoverable) return;
+    $$('.card-spotlight').forEach(card => {
+      card.addEventListener('pointermove', (e) => {
+        if (spotRaf) return;
+        spotRaf = requestAnimationFrame(() => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+          card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+          spotRaf = 0;
+        });
+      });
+    });
+  }
+
+  /* ---------- 6. CTA magnet (subtle) ---------- */
+  function bindMagnet() {
+    if (!hoverable || reduceMotion) return;
+    $$('.btn-primary').forEach(btn => {
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) * 0.12;
+        const dy = (e.clientY - (r.top + r.height / 2)) * 0.18;
+        btn.style.translate = `${dx}px ${dy - 2}px`;
+      });
+      btn.addEventListener('pointerleave', () => { btn.style.translate = ''; });
+    });
+  }
+
+  /* ---------- 7. Toast ---------- */
+  const toastEl = $('#toast');
+  let toastTimer = 0;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.hidden = false;
+    toastEl.textContent = msg;
+    requestAnimationFrame(() => toastEl.classList.add('is-show'));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastEl.classList.remove('is-show');
+      setTimeout(() => { toastEl.hidden = true; }, 300);
+    }, 1800);
+  }
+
+  /* ===========================================================
+     WORKSPACE
+     =========================================================== */
+
+  const workspaceState = {
+    initialized: false,
+    tab: 'home',
+    filter: 'all',
+    keyword: '',
+    works: seedWorks(),
+  };
+
+  function seedWorks() {
+    const FEATURE = {
+      slice: { label: '智能切片', tag: '切片' },
+      quote: { label: '金句生成', tag: '金句' },
+      title: { label: '标题生成', tag: '标题' },
+      size:  { label: '尺寸设计', tag: '尺寸' },
+    };
+    const titles = [
+      ['一小时长片切出 12 条爆款', 'slice', '12:48', '昨天 14:32'],
+      ['知识区博主 · 高光精选', 'slice', '08:21', '2 天前'],
+      ['口播金句 · 第 7 期', 'quote', '03:42', '3 天前'],
+      ['竖屏一键适配 · 抖音版', 'size', '01:25', '4 天前'],
+      ['爆点标题候选 · 10 条', 'title', '00:48', '5 天前'],
+      ['访谈节目 · AI 智能切片', 'slice', '23:10', '上周'],
+      ['品牌片段 · 16:9 → 9:16', 'size', '00:32', '上周'],
+      ['年终复盘 · 金句合集', 'quote', '06:18', '2 周前'],
+    ];
+    return titles.map(([title, feature, dur, time], i) => ({
+      id: 'w' + (1000 + i),
+      title,
+      feature,
+      featureLabel: FEATURE[feature].label,
+      featureTag: FEATURE[feature].tag,
+      dur,
+      time,
+    }));
+  }
+
+  function initWorkspace() {
+    if (workspaceState.initialized) {
+      // still re-render to refresh on revisit
+      renderRecent();
+      renderHistory();
+      return;
+    }
+    workspaceState.initialized = true;
+
+    // Tab switching
+    $$('.sidebar-item').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+    // "view all" jump
+    $$('[data-go-tab]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(el.dataset.goTab);
+      });
+    });
+
+    // Create CTA
+    const createCta = $('#createCta');
+    if (createCta) {
+      createCta.addEventListener('click', () => {
+        toast('准备好开始创作 ✨ — 这里是 demo，正式版会进入编辑器');
+      });
+    }
+    // Feature shortcuts
+    $$('.feature-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const label = btn.querySelector('.feature-label').textContent;
+        toast(`已唤起「${label}」流程 — demo 中`);
+      });
+    });
+
+    // History controls
+    const search = $('#historySearch');
+    if (search) {
+      search.addEventListener('input', (e) => {
+        workspaceState.keyword = e.target.value.trim();
+        renderHistory();
+      });
+    }
+    $$('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $$('.seg-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        workspaceState.filter = btn.dataset.filter;
+        renderHistory();
+      });
+    });
+    const newBtn = $('#newFromHistory');
+    if (newBtn) newBtn.addEventListener('click', addDemoWork);
+    const emptyCreate = $('#emptyCreate');
+    if (emptyCreate) emptyCreate.addEventListener('click', addDemoWork);
+
+    // Drawer (mobile)
+    const drawerToggle = $('#drawerToggle');
+    const drawerMask   = $('#drawerMask');
+    if (drawerToggle) drawerToggle.addEventListener('click', openDrawer);
+    if (drawerMask)   drawerMask.addEventListener('click', closeDrawer);
+
+    renderRecent();
+    renderHistory();
+  }
+
+  function switchTab(tab) {
+    workspaceState.tab = tab;
+    $$('.sidebar-item').forEach(b => {
+      const active = b.dataset.tab === tab;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-current', active ? 'page' : 'false');
+    });
+    $$('.ws-tab').forEach(el => {
+      el.hidden = el.dataset.tabContent !== tab;
+    });
+    const crumb = $('#wsCrumb');
+    if (crumb) crumb.textContent = tab === 'home' ? '首页' : '历史记录';
+    closeDrawer();
+    // re-bind reveal for newly visible content
+    bindReveal();
+  }
+
+  function addDemoWork() {
+    const idx = workspaceState.works.length;
+    const features = ['slice','quote','title','size'];
+    const FLABEL = { slice:'智能切片', quote:'金句生成', title:'标题生成', size:'尺寸设计' };
+    const FTAG   = { slice:'切片', quote:'金句', title:'标题', size:'尺寸' };
+    const f = features[idx % features.length];
+    workspaceState.works.unshift({
+      id: 'w' + (2000 + idx),
+      title: `新建作品 #${idx + 1}`,
+      feature: f,
+      featureLabel: FLABEL[f],
+      featureTag: FTAG[f],
+      dur: '00:30',
+      time: '刚刚',
+    });
+    // clear filters so user sees it
+    workspaceState.filter = 'all';
+    workspaceState.keyword = '';
+    const search = $('#historySearch');
+    if (search) search.value = '';
+    $$('.seg-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === 'all'));
+    switchTab('history');
+    renderHistory();
+    renderRecent();
+    toast('已新建作品 — 在历史记录里查看');
+  }
+
+  function renderRecent() {
+    const wrap = $('#recentList');
+    if (!wrap) return;
+    const items = workspaceState.works.slice(0, 4);
+    if (!items.length) {
+      wrap.innerHTML = `<div class="recent-empty" style="grid-column:1/-1;color:var(--text-tertiary);font-size:14px;padding:24px;text-align:center;">暂无最近作品</div>`;
+      return;
+    }
+    wrap.innerHTML = items.map(workCardHTML).join('');
+  }
+
+  function renderHistory() {
+    const grid  = $('#historyGrid');
+    const empty = $('#historyEmpty');
+    if (!grid || !empty) return;
+
+    const { filter, keyword, works } = workspaceState;
+    const kw = keyword.toLowerCase();
+    const filtered = works.filter(w => {
+      if (filter !== 'all' && w.feature !== filter) return false;
+      if (kw && !(w.title.toLowerCase().includes(kw) || w.featureLabel.includes(kw) || w.featureTag.includes(kw))) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      grid.hidden = true;
+      empty.hidden = false;
+      // when empty due to filter/keyword, change copy slightly
+      const h3 = empty.querySelector('h3');
+      const p  = empty.querySelector('p');
+      const btn = empty.querySelector('#emptyCreate');
+      if (filter !== 'all' || keyword) {
+        h3.textContent = '没有找到匹配的作品';
+        p.textContent  = '换个关键词或筛选条件试试，也可以新建一条。';
+        btn.textContent = '＋ 新建作品';
+      } else {
+        h3.textContent = '还没有任何记录';
+        p.textContent  = '开始你的第一次 AI 剪辑，作品会自动保存在这里。';
+        btn.textContent = '＋ 开始创作';
+      }
+    } else {
+      empty.hidden = true;
+      grid.hidden = false;
+      grid.innerHTML = filtered.map(workCardHTML).join('');
+    }
+  }
+
+  function workCardHTML(w) {
+    return `
+      <article class="work-card" tabindex="0" data-id="${w.id}" aria-label="${escapeHTML(w.title)}">
+        <div class="work-thumb">
+          <span class="tag">${escapeHTML(w.featureTag)}</span>
+          <span class="duration">${escapeHTML(w.dur)}</span>
+          <span class="play" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+        </div>
+        <div class="work-meta">
+          <h4>${escapeHTML(w.title)}</h4>
+          <span class="work-time">${escapeHTML(w.featureLabel)} · ${escapeHTML(w.time)}</span>
+        </div>
+      </article>
+    `;
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  /* ---------- Drawer ---------- */
+  function openDrawer() {
+    document.body.classList.add('drawer-open');
+    const dt = $('#drawerToggle');
+    const mask = $('#drawerMask');
+    if (dt)   dt.setAttribute('aria-expanded', 'true');
+    if (mask) mask.hidden = false;
+  }
+  function closeDrawer() {
+    document.body.classList.remove('drawer-open');
+    const dt = $('#drawerToggle');
+    const mask = $('#drawerMask');
+    if (dt)   dt.setAttribute('aria-expanded', 'false');
+    if (mask) mask.hidden = true;
+  }
+
+  /* ---------- Boot ---------- */
+  function boot() {
+    applyRoute();
+    bindReveal();
+    bindSpotlight();
+    bindMagnet();
+    onScroll();
+
+    // Konami-lite easter egg: type "brief" — sparkle the brand dot
+    let buf = '';
+    window.addEventListener('keydown', (e) => {
+      if (!/^[a-zA-Z]$/.test(e.key)) return;
+      buf = (buf + e.key.toLowerCase()).slice(-5);
+      if (buf === 'brief') {
+        $$('.nav-brand .dot').forEach(d => {
+          d.animate(
+            [
+              { transform: 'scale(1)',  filter: 'brightness(1)' },
+              { transform: 'scale(1.6)', filter: 'brightness(1.5)' },
+              { transform: 'scale(1)',  filter: 'brightness(1)' },
+            ],
+            { duration: 700, easing: 'cubic-bezier(.2,.8,.2,1)' }
+          );
+        });
+        toast('Brief Cut ✨');
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+
+</script>
+</body>
+</html>

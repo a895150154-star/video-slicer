@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "arch-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8899", "--directory", "/Users/yecairen/Desktop/切片项目/video-slicer"],
+      "port": 8899
+    }
+  ]
+}

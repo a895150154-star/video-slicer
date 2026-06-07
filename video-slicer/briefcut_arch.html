@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brief Cut · 系统架构</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6f2;
+  --surface:#ffffff;
+  --surface2:#f0ede6;
+  --border:#e2ddd6;
+  --border2:#d4cfc6;
+  --text:#1a1816;
+  --text2:#5c574f;
+  --text3:#a09a90;
+
+  --purple:#6c5ce7;--purple-bg:#f0eeff;--purple-bd:#c9c0f5;
+  --teal:#00897b;  --teal-bg:#e8f5f3;  --teal-bd:#9fd9d2;
+  --amber:#d97706; --amber-bg:#fffbeb;  --amber-bd:#f5d190;
+  --coral:#e05a44; --coral-bg:#fff4f2;  --coral-bd:#f5bdb3;
+  --blue:#2563eb;  --blue-bg:#eff6ff;   --blue-bd:#bdd4f7;
+  --gray:#4b5563;  --gray-bg:#f3f4f6;   --gray-bd:#d1d5db;
+  --green:#16a34a; --green-bg:#f0fdf4;  --green-bd:#a7f3c4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Noto Sans SC',sans-serif;font-weight:300;
+  line-height:1.5;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 60% 30% at 20% 0%,rgba(108,92,231,.04) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 25% at 80% 100%,rgba(0,137,123,.03) 0%,transparent 70%);
+}
+.page{max-width:1080px;margin:0 auto;padding:40px 24px 72px}
+
+/* HEADER */
+.header{margin-bottom:40px}
+.eyebrow{font-family:'DM Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:'Syne',sans-serif;font-size:clamp(22px,3.5vw,34px);font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.15}
+h1 em{font-style:normal;color:var(--purple)}
+.sub{font-size:13px;color:var(--text2);max-width:540px;line-height:1.7;margin-bottom:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:'DM Mono',monospace;font-size:9px;padding:3px 9px;border-radius:4px;border:1px solid var(--border2);color:var(--text3);background:var(--surface)}
+
+/* LEGEND */
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:32px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface)}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ARROW CONNECTOR */
+.connector{display:flex;align-items:center;justify-content:center;height:32px;position:relative}
+.conn-line{width:1px;height:32px;background:linear-gradient(to top,var(--border2),var(--border))}
+.conn-arrow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:6px solid var(--border2)}
+.conn-label{position:absolute;right:calc(50% + 12px);top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);white-space:nowrap}
+
+/* LAYER */
+.layer{border-radius:14px;border:1px solid var(--border);background:var(--surface);overflow:hidden;margin-bottom:0}
+.layer-header{padding:12px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:10px}
+.layer-num{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);flex-shrink:0}
+.layer-name{font-size:12px;font-weight:500;color:var(--text)}
+.layer-desc{font-size:10px;color:var(--text3);margin-left:auto;font-family:'DM Mono',monospace}
+.layer-body{padding:14px 16px}
+
+/* NODE */
+.node{border-radius:8px;border:1px solid;padding:9px 12px;cursor:pointer;transition:all .15s;position:relative}
+.node:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.node-title{font-size:11px;font-weight:500;margin-bottom:2px}
+.node-sub{font-size:10px;line-height:1.5}
+.node-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.ntag{font-size:9px;padding:1px 6px;border-radius:3px;font-family:'DM Mono',monospace;font-weight:500}
+
+/* node color variants */
+.n-purple{background:var(--purple-bg);border-color:var(--purple-bd)}.n-purple .node-title{color:var(--purple)}.n-purple .node-sub{color:#7c70d4}.n-purple:hover{border-color:var(--purple)}
+.n-teal{background:var(--teal-bg);border-color:var(--teal-bd)}.n-teal .node-title{color:var(--teal)}.n-teal .node-sub{color:#4aab9f}.n-teal:hover{border-color:var(--teal)}
+.n-amber{background:var(--amber-bg);border-color:var(--amber-bd)}.n-amber .node-title{color:var(--amber)}.n-amber .node-sub{color:#b8850a}.n-amber:hover{border-color:var(--amber)}
+.n-blue{background:var(--blue-bg);border-color:var(--blue-bd)}.n-blue .node-title{color:var(--blue)}.n-blue .node-sub{color:#4b7fd4}.n-blue:hover{border-color:var(--blue)}
+.n-gray{background:var(--gray-bg);border-color:var(--gray-bd)}.n-gray .node-title{color:var(--gray)}.n-gray .node-sub{color:#6b7280}.n-gray:hover{border-color:var(--gray)}
+.n-green{background:var(--green-bg);border-color:var(--green-bd)}.n-green .node-title{color:var(--green)}.n-green .node-sub{color:#4caf77}.n-green:hover{border-color:var(--green)}
+
+/* tag colors */
+.t-purple{background:#ede9ff;color:var(--purple)}
+.t-teal{background:#d4f0ed;color:var(--teal)}
+.t-amber{background:#fef3c7;color:var(--amber)}
+.t-gray{background:#e5e7eb;color:var(--gray)}
+.t-blue{background:#dbeafe;color:var(--blue)}
+.t-coral{background:#fee2e2;color:#dc2626}
+.t-green{background:#dcfce7;color:var(--green)}
+
+/* GRIDS */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+
+/* sub-sections in platform layer */
+.sub-section{border:1px dashed var(--border2);border-radius:8px;padding:10px 12px;background:rgba(255,255,255,.6)}
+.sub-section-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.platform-grid{display:grid;grid-template-columns:1fr auto;gap:10px}
+
+/* fallback strip */
+.fallback-strip{border:1px solid #fecaca;background:#fff5f5;border-radius:6px;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.fallback-strip-label{font-family:'DM Mono',monospace;font-size:9px;color:#dc2626;font-weight:500;flex-shrink:0}
+.fallback-item{font-size:10px;color:#b91c1c;display:flex;gap:5px;align-items:center}
+.fallback-item::before{content:"↪";flex-shrink:0;opacity:.7}
+
+/* model two cols */
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.model-group{border:1px dashed var(--border2);border-radius:8px;padding:10px 12px;background:rgba(255,255,255,.5)}
+.model-group-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
+
+/* data two cols */
+.data-grid{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.data-group{border:1px dashed var(--border2);border-radius:8px;padding:10px 12px;background:rgba(255,255,255,.5)}
+.data-group-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
+
+/* detail overlay */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;max-width:440px;width:calc(100% - 48px);max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.panel-close{position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:14px;color:var(--text2);display:flex;align-items:center;justify-content:center}
+.panel-title{font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px}
+.panel-type{font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);margin-bottom:12px}
+.panel-body{font-size:13px;color:var(--text2);line-height:1.75}
+.panel-section{margin-top:12px}
+.panel-section-title{font-size:9px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px}
+.panel-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.panel-list li{font-size:12px;color:var(--text2);display:flex;gap:7px;line-height:1.55}
+.panel-list li::before{content:"·";color:var(--text3);flex-shrink:0}
+.panel-tags{display:flex;gap:5px;flex-wrap:wrap}
+.panel-tag{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--gray-bg);color:var(--gray);font-family:'DM Mono',monospace}
+
+/* entrance */
+.layer{opacity:0;transform:translateY(8px);animation:up .4s ease forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.layer:nth-child(1){animation-delay:.04s}
+.layer:nth-child(3){animation-delay:.1s}
+.layer:nth-child(5){animation-delay:.16s}
+.layer:nth-child(7){animation-delay:.22s}
+.layer:nth-child(9){animation-delay:.28s}
+.layer:nth-child(11){animation-delay:.34s}
+
+@media(max-width:680px){
+  .g5,.g4,.g3{grid-template-columns:1fr 1fr}
+  .platform-grid,.model-grid,.data-grid{grid-template-columns:1fr}
+}
+@media(max-width:420px){
+  .g5,.g4,.g3,.g2{grid-template-columns:1fr}
+}
+
+/* TAB NAV */
+.tab-nav{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab-btn{font-family:'DM Mono',monospace;font-size:11px;padding:8px 16px;border:none;background:transparent;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border-radius:6px 6px 0 0;white-space:nowrap}
+.tab-btn:hover{color:var(--text2);background:var(--surface2)}
+.tab-btn.active{color:var(--purple);border-bottom-color:var(--purple);background:var(--surface);font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* WORKFLOW TAB */
+.wf-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.wf-header{display:flex;align-items:flex-start;gap:16px;padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.wf-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--purple);opacity:.25;flex-shrink:0;line-height:1}
+.wf-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+.wf-sub{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.wf-block{padding:14px 20px;border-bottom:1px solid var(--border)}
+.wf-block:last-of-type{border-bottom:none}
+.wf-block-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:500}
+.wf-text{font-size:12px;color:var(--text2);line-height:1.75}
+
+/* flow steps */
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:flex;gap:12px;align-items:flex-start;position:relative;padding-bottom:14px}
+.flow-step-last{padding-bottom:0}
+.flow-dot{width:8px;height:8px;border-radius:50%;background:var(--purple);flex-shrink:0;margin-top:4px;position:relative;z-index:1}
+.flow-dot::after{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:1px;height:calc(100% + 6px);background:var(--purple-bd)}
+.flow-step-last .flow-dot::after{display:none}
+.flow-dot-end{background:var(--teal)}
+.flow-content{font-size:12px;color:var(--text2);line-height:1.65}
+.flow-content strong{color:var(--text);font-weight:500}
+
+.wf-tags-row{display:flex;flex-wrap:wrap;gap:6px;padding:12px 20px;background:var(--surface2);border-top:1px solid var(--border)}
+.wtag{font-size:10px;padding:3px 9px;border-radius:5px;font-family:'DM Mono',monospace;font-weight:500}
+.wtag-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
+.wtag-teal{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-bd)}
+.wtag-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.wtag-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.wtag-gray{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-bd)}
+.wtag-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+
+/* PROMPT TAB */
+.prompt-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.prompt-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.prompt-badge{font-family:'DM Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:500;flex-shrink:0}
+.prompt-title{font-size:13px;font-weight:500;color:var(--text)}
+.prompt-body{padding:16px 20px}
+.prompt-desc{font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:10px}
+.prompt-rules{list-style:none;display:flex;flex-direction:column;gap:5px}
+.prompt-rules li{font-size:11px;color:var(--text2);display:flex;gap:7px;line-height:1.6}
+.prompt-rules li::before{content:"→";color:var(--purple);flex-shrink:0;font-weight:700}
+.prompt-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.prompt-stat{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2)}
+.prompt-stat strong{color:var(--text);font-weight:500}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header" style="animation:up .35s ease both">
+  <div class="eyebrow">系统架构 · System Architecture</div>
+  <h1>Brief Cut<em>·</em>智能视频切片</h1>
+  <div class="sub">4 步全自动把 1-4 小时知识类直播录像变成"陌生观众能独立看懂"的金句切片 + 知识点切片，附带 0 编造的平台文案，下载即用。</div>
+  <div class="chips">
+    <span class="chip">whisper.cpp 本地转录</span>
+    <span class="chip">Claude Sonnet 4-6</span>
+    <span class="chip">V4 Prompt 工程</span>
+    <span class="chip">6 维度评分</span>
+    <span class="chip">FFmpeg 切片</span>
+    <span class="chip">反 AI 编造</span>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>AI / LLM 节点</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--teal)"></div>处理工具</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>编排 / 流程</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--blue)"></div>数据存储</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--gray)"></div>前端 / 界面</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>产出 / 导出</div>
+  <div class="leg"><div class="leg-dot" style="background:#dc2626"></div>兜底策略</div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('arch',this)">系统架构</button>
+  <button class="tab-btn" onclick="switchTab('workflow',this)">4 步工作流</button>
+  <button class="tab-btn" onclick="switchTab('prompts',this)">AI Prompt 工程</button>
+</div>
+
+<div id="tab-arch" class="tab-panel active">
+
+<!-- ═══ L1 用户层 ═══ -->
+<div class="layer">
+  <div class="layer-header">
+    <span class="layer-num">L1</span>
+    <span class="layer-name">用户层</span>
+    <span class="layer-desc">用户看到的功能页面</span>
+  </div>
+  <div class="layer-body">
+    <div class="g5">
+      <div class="node n-gray" onclick="show('l1-upload')">
+        <div class="node-title">视频上传</div>
+        <div class="node-sub">拖拽 / 点选上传</div>
+        <div class="node-tags"><span class="ntag t-gray">MP4/MOV</span></div>
+      </div>
+      <div class="node n-gray" onclick="show('l1-analyze')">
+        <div class="node-title">AI 分析</div>
+        <div class="node-sub">三任务并行进度</div>
+        <div class="node-tags"><span class="ntag t-gray">进度追踪</span></div>
+      </div>
+      <div class="node n-gray" onclick="show('l1-select')">
+        <div class="node-title">选择切片</div>
+        <div class="node-sub">金句 + 知识点列表</div>
+        <div class="node-tags"><span class="ntag t-gray">6维评分</span></div>
+      </div>
+      <div class="node n-gray" onclick="show('l1-result')">
+        <div class="node-title">切片结果</div>
+        <div class="node-sub">编辑文案·打包下载</div>
+        <div class="node-tags"><span class="ntag t-gray">ZIP导出</span></div>
+      </div>
+      <div class="node n-gray" onclick="show('l1-history')">
+        <div class="node-title">历史记录</div>
+        <div class="node-sub">过往切片任务</div>
+        <div class="node-tags"><span class="ntag t-gray">侧栏导航</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="conn-line"></div><div class="conn-arrow"></div><div class="conn-label">L2 支撑 L1</div></div>
+
+<!-- ═══ L2 应用层 ═══ -->
+<div class="layer">
+  <div class="layer-header">
+    <span class="layer-num">L2</span>
+    <span class="layer-name">应用层</span>
+    <span class="layer-desc">系统具备的业务能力</span>
+  </div>
+  <div class="layer-body">
+    <div class="g5">
+      <div class="node n-amber" onclick="show('l2-workflow')">
+        <div class="node-title">4步工作流</div>
+        <div class="node-sub">上传→分析→选择→导出</div>
+      </div>
+      <div class="node n-amber" onclick="show('l2-scoring')">
+        <div class="node-title">6维度评分</div>
+        <div class="node-sub">100分制·按分排序</div>
+      </div>
+      <div class="node n-amber" onclick="show('l2-compliance')">
+        <div class="node-title">合规检测</div>
+        <div class="node-sub">违禁词·风险分级</div>
+      </div>
+      <div class="node n-amber" onclick="show('l2-copy')">
+        <div class="node-title">双平台文案</div>
+        <div class="node-sub">抖音 + B站·反编造</div>
+      </div>
+      <div class="node n-amber" onclick="show('l2-persist')">
+        <div class="node-title">状态持久化</div>
+        <div class="node-sub">localStorage 11 keys</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="conn-line"></div><div class="conn-arrow"></div><div class="conn-label">L3 支撑 L2</div></div>
+
+<!-- ═══ L3 平台层 ═══ -->
+<div class="layer">
+  <div class="layer-header">
+    <span class="layer-num">L3</span>
+    <span class="layer-name">平台层</span>
+    <span class="layer-desc">处理管线 + 工具库</span>
+  </div>
+  <div class="layer-body">
+    <div class="platform-grid">
+      <!-- 处理管线 -->
+      <div class="sub-section">
+        <div class="sub-section-label">处理管线 Pipelines</div>
+        <div class="g2" style="margin-bottom:8px">
+          <div class="node n-teal" onclick="show('l3-transcribe')">
+            <div class="node-title">转写管线</div>
+            <div class="node-sub">Upload → FFmpeg 提取音频 → whisper.cpp → segments[]</div>
+          </div>
+          <div class="node n-purple" onclick="show('l3-ai-analyze')">
+            <div class="node-title">AI 分析管线</div>
+            <div class="node-sub">违禁词检测 ∥ 金句识别 → sleep 3s → 知识点识别</div>
+          </div>
+        </div>
+        <div class="g2" style="margin-bottom:8px">
+          <div class="node n-teal" onclick="show('l3-clip')">
+            <div class="node-title">切片管线</div>
+            <div class="node-sub">FFmpeg 切片 + SRT 字幕 + 缩略图 + 文案生成</div>
+          </div>
+          <div class="node n-green" onclick="show('l3-export')">
+            <div class="node-title">导出管线</div>
+            <div class="node-sub">保存文案 → ZIP 打包 → 浏览器下载</div>
+          </div>
+        </div>
+        <!-- 兜底横条 -->
+        <div class="fallback-strip">
+          <span class="fallback-strip-label">兜底策略</span>
+          <span class="fallback-item">JSON 三层解析兜底</span>
+          <span class="fallback-item">繁简转换双保险</span>
+          <span class="fallback-item">API 限流 sleep 3s</span>
+          <span class="fallback-item">LLM 输出空 → 降级空数组</span>
+          <span class="fallback-item">缩略图失败静默降级</span>
+          <span class="fallback-item">文案失败保留标题</span>
+        </div>
+      </div>
+      <!-- 工具库 -->
+      <div class="sub-section" style="min-width:180px">
+        <div class="sub-section-label">工具库 Tools · 4 类</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="node n-teal" onclick="show('l3-tool-ffmpeg')">
+            <div class="node-title">FFmpeg</div>
+            <div class="node-sub">音频提取·视频切片·缩略图</div>
+            <div class="node-tags"><span class="ntag t-teal">libx264</span><span class="ntag t-teal">CRF 18</span></div>
+          </div>
+          <div class="node n-teal" onclick="show('l3-tool-whisper')">
+            <div class="node-title">whisper.cpp</div>
+            <div class="node-sub">本地 CPU 语音转录</div>
+            <div class="node-tags"><span class="ntag t-teal">medium 模型</span></div>
+          </div>
+          <div class="node n-purple" onclick="show('l3-tool-claude')">
+            <div class="node-title">Claude API</div>
+            <div class="node-sub">金句·知识点·文案·二校</div>
+            <div class="node-tags"><span class="ntag t-purple">4 个调用点</span></div>
+          </div>
+          <div class="node n-teal" onclick="show('l3-tool-words')">
+            <div class="node-title">词库扫描</div>
+            <div class="node-sub">xlsx 违禁词 + txt 口水词</div>
+            <div class="node-tags"><span class="ntag t-teal">A/B/C 三级</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="conn-line"></div><div class="conn-arrow"></div><div class="conn-label">L4 支撑 L3</div></div>
+
+<!-- ═══ L4 基座层 ═══ -->
+<div class="layer">
+  <div class="layer-header">
+    <span class="layer-num">L4</span>
+    <span class="layer-name">基座层</span>
+    <span class="layer-desc">系统运行的工程基础</span>
+  </div>
+  <div class="layer-body">
+    <div class="g4">
+      <div class="node n-gray" onclick="show('l4-fastapi')">
+        <div class="node-title">FastAPI 后端</div>
+        <div class="node-sub">单文件 main.py</div>
+        <div class="node-tags"><span class="ntag t-gray">uvicorn</span><span class="ntag t-gray">832 行</span></div>
+      </div>
+      <div class="node n-gray" onclick="show('l4-nextjs')">
+        <div class="node-title">Next.js 16 前端</div>
+        <div class="node-sub">App Router · React 19</div>
+        <div class="node-tags"><span class="ntag t-gray">Tailwind v4</span></div>
+      </div>
+      <div class="node n-amber" onclick="show('l4-clean-json')">
+        <div class="node-title">JSON 三层兜底</div>
+        <div class="node-sub">clean_json 解析防护</div>
+        <div class="node-tags"><span class="ntag t-amber">直解</span><span class="ntag t-amber">剥MD</span><span class="ntag t-amber">转义修复</span></div>
+      </div>
+      <div class="node n-gray" onclick="show('l4-cors')">
+        <div class="node-title">CORS · 错误处理</div>
+        <div class="node-sub">跨域·XHR 进度·异常拦截</div>
+        <div class="node-tags"><span class="ntag t-gray">localhost</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="conn-line"></div><div class="conn-arrow"></div><div class="conn-label">L5 支撑 L4</div></div>
+
+<!-- ═══ L5 模型层 ═══ -->
+<div class="layer">
+  <div class="layer-header">
+    <span class="layer-num">L5</span>
+    <span class="layer-name">模型层</span>
+    <span class="layer-desc">V4 Prompt 工程 · 4 版迭代</span>
+  </div>
+  <div class="layer-body">
+    <div class="model-grid">
+      <div class="model-group">
+        <div class="model-group-label">LLM 模型</div>
+        <div class="node n-purple" onclick="show('l5-claude')">
+          <div class="node-title">Claude Sonnet 4-6</div>
+          <div class="node-sub">金句·知识点·文案·二校 — 4 个调用点</div>
+          <div class="node-tags"><span class="ntag t-purple">蓝衣中转</span><span class="ntag t-purple">OpenAI 兼容协议</span></div>
+        </div>
+      </div>
+      <div class="model-group">
+        <div class="model-group-label">ASR 模型</div>
+        <div class="node n-teal" onclick="show('l5-whisper')">
+          <div class="node-title">whisper.cpp medium</div>
+          <div class="node-sub">本地 CPU 推理 · 1.4GB · 无外发</div>
+          <div class="node-tags"><span class="ntag t-teal">macOS ARM64</span><span class="ntag t-teal">简体引导 prompt</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="conn-line"></div><div class="conn-arrow"></div><div class="conn-label">L6 支撑 L5</div></div>
+
+<!-- ═══ L6 数据层 ═══ -->
+<div class="layer">
+  <div class="layer-header">
+    <span class="layer-num">L6</span>
+    <span class="layer-name">数据层</span>
+    <span class="layer-desc">无数据库 · 文件系统 + 浏览器存储</span>
+  </div>
+  <div class="layer-body">
+    <div class="data-grid">
+      <div class="data-group">
+        <div class="data-group-label">后端文件系统</div>
+        <div class="g3" style="margin-bottom:8px">
+          <div class="node n-blue" onclick="show('l6-video')">
+            <div class="node-title">原始视频</div>
+            <div class="node-sub">videos/&lt;id&gt;/&lt;id&gt;.mp4</div>
+            <div class="node-tags"><span class="ntag t-blue">持久化</span></div>
+          </div>
+          <div class="node n-blue" onclick="show('l6-clips')">
+            <div class="node-title">切片产物</div>
+            <div class="node-sub">clip.mp4 + thumb.jpg + subtitle.srt</div>
+            <div class="node-tags"><span class="ntag t-blue">clip_NN/</span></div>
+          </div>
+          <div class="node n-blue" onclick="show('l6-wordlib')">
+            <div class="node-title">词库文件</div>
+            <div class="node-sub">sensitive_words.xlsx + filler_words.txt</div>
+            <div class="node-tags"><span class="ntag t-blue">data/</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="data-group">
+        <div class="data-group-label">前端浏览器存储</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="node n-blue" onclick="show('l6-ls')">
+            <div class="node-title">localStorage</div>
+            <div class="node-sub">11 个 keys · 跨步骤状态持久化</div>
+            <div class="node-tags"><span class="ntag t-blue">video-slicer:*</span></div>
+          </div>
+          <div class="node n-blue" onclick="show('l6-thumb')">
+            <div class="node-title">首帧缩略图</div>
+            <div class="node-sub">前端 Canvas 本地生成 base64</div>
+            <div class="node-tags"><span class="ntag t-blue">内存态</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end tab-arch -->
+
+
+<!-- TAB 2: 4 步工作流 -->
+<div id="tab-workflow" class="tab-panel">
+
+<p class="wf-text" style="max-width:620px;margin-bottom:24px">4 步闭环：上传视频 → AI 自动分析 → 用户勾选 → 一键打包。核心差异化在 Step 2 的 V4 Prompt——不切"按时间窗的碎片"，而是切"陌生观众能独立看懂的完整片段"。</p>
+
+<div class="prompt-stats">
+  <div class="prompt-stat">目标时长 <strong>1-4h 直播录像</strong></div>
+  <div class="prompt-stat">转录耗时 <strong>3-5 min (M2 CPU)</strong></div>
+  <div class="prompt-stat">AI 分析 <strong>8-25 sec</strong></div>
+  <div class="prompt-stat">切片编码 <strong>30-60 sec/条</strong></div>
+  <div class="prompt-stat">产出 <strong>5-15 条候选切片</strong></div>
+</div>
+
+<!-- Step 1 -->
+<div class="wf-card">
+  <div class="wf-header">
+    <div class="wf-num">01</div>
+    <div>
+      <div class="wf-title">上传视频 + 自动转写</div>
+      <div class="wf-sub">首页 hero 区 · 拖拽/点选 → FFmpeg → whisper.cpp</div>
+    </div>
+  </div>
+  <div class="wf-block">
+    <div class="wf-block-label">执行链路</div>
+    <div class="flow-steps">
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>文件接收</strong> — 拖拽/点选 MP4/MOV，前端 Canvas 生成首帧缩略图 + 读取时长</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>XHR 上传</strong> — FormData POST /transcribe，实时上传进度条 0-40%</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>FFmpeg 提取音频</strong> — 16kHz 单声道 PCM WAV，whisper.cpp 要求格式</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>whisper.cpp 转写</strong> — medium 模型 + 简体引导 prompt，输出带时间戳 JSON</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>后处理</strong> — 去时间标记 + zhconv 繁简转换兜底 + 持久化视频到 videos/</div></div>
+      <div class="flow-step flow-step-last"><div class="flow-dot flow-dot-end"></div><div class="flow-content"><strong>返回 segments[]</strong> — {start, end, text}，精度 0.001s，自动进入 Step 2</div></div>
+    </div>
+  </div>
+  <div class="wf-tags-row">
+    <span class="wtag wtag-teal">FFmpeg</span>
+    <span class="wtag wtag-teal">whisper.cpp</span>
+    <span class="wtag wtag-gray">XHR 进度</span>
+    <span class="wtag wtag-amber">zhconv 繁简兜底</span>
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="wf-card">
+  <div class="wf-header">
+    <div class="wf-num">02</div>
+    <div>
+      <div class="wf-title">AI 内容分析 + 6 维度评分</div>
+      <div class="wf-sub">三任务并行 · V4 Prompt · 违禁词 + 金句 + 知识点</div>
+    </div>
+  </div>
+  <div class="wf-block">
+    <div class="wf-block-label">执行链路</div>
+    <div class="flow-steps">
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>违禁词检测 (C1)</strong> — 词库 A/B/C 三级扫描 + Claude AI 二校（并行发出，不阻塞）</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>金句识别 (C2)</strong> — V4 Prompt：合并语义碎片 → 指代回溯 → 完整性硬规则 → 4 类型分类 → 6 维评分</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>sleep 3s</strong> — API 限流保护，避免蓝衣中转 429</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>知识点识别 (C3)</strong> — V4 Prompt：三段式结构检测 → 自闭环验证 → 6 类知识点 → 6 维评分</div></div>
+      <div class="flow-step flow-step-last"><div class="flow-dot flow-dot-end"></div><div class="flow-content"><strong>结果排序</strong> — 按总分 desc 排序，全部默认勾选，进入可折叠转写详情</div></div>
+    </div>
+  </div>
+  <div class="wf-tags-row">
+    <span class="wtag wtag-purple">Claude Sonnet 4-6</span>
+    <span class="wtag wtag-amber">V4 Prompt</span>
+    <span class="wtag wtag-teal">词库扫描</span>
+    <span class="wtag wtag-blue">6维评分</span>
+    <span class="wtag wtag-amber">clean_json 兜底</span>
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div class="wf-card">
+  <div class="wf-header">
+    <div class="wf-num">03</div>
+    <div>
+      <div class="wf-title">选择切片 + 生成</div>
+      <div class="wf-sub">用户勾选 → FFmpeg 切片 + SRT + 文案</div>
+    </div>
+  </div>
+  <div class="wf-block">
+    <div class="wf-block-label">执行链路</div>
+    <div class="flow-steps">
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>用户勾选</strong> — 金句/知识点 Tab 切换，ScoreRing 圆环仪表盘，6 维度展开面板</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>构建 clips[]</strong> — 合并 selectedGolden + selectedKnowledge，附带时间范围内转写文本</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>FFmpeg 切片 (C4)</strong> — libx264 -preset slow -crf 18 -c:a aac，视觉接近无损</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>SRT 字幕生成</strong> — 按切片内时间归零，匹配 segment 文本</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>缩略图</strong> — 中间帧 thumb.jpg + 文案 JSON 双平台</div></div>
+      <div class="flow-step flow-step-last"><div class="flow-dot flow-dot-end"></div><div class="flow-content"><strong>文案生成 (C4)</strong> — Claude COPY prompt + 反编造硬规则，抖音版 + B站版</div></div>
+    </div>
+  </div>
+  <div class="wf-tags-row">
+    <span class="wtag wtag-teal">FFmpeg libx264</span>
+    <span class="wtag wtag-purple">Claude 文案生成</span>
+    <span class="wtag wtag-green">SRT 字幕</span>
+    <span class="wtag wtag-amber">反编造硬规则</span>
+  </div>
+</div>
+
+<!-- Step 4 -->
+<div class="wf-card">
+  <div class="wf-header">
+    <div class="wf-num">04</div>
+    <div>
+      <div class="wf-title">切片结果 + 文案编辑 + 下载</div>
+      <div class="wf-sub">大缩略图 · 双平台 Tab · 一键 ZIP 下载</div>
+    </div>
+  </div>
+  <div class="wf-block">
+    <div class="wf-block-label">执行链路</div>
+    <div class="flow-steps">
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>结果展示</strong> — 大缩略图 + hover 播放遮罩，抖音/B站 Tab 切换文案</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>文案编辑</strong> — 标题/文案可编辑 + 字数统计（抖音 300 / B站 1500）+ 一键复制</div></div>
+      <div class="flow-step"><div class="flow-dot"></div><div class="flow-content"><strong>重新生成</strong> — 单条文案可调 Claude 重新生成，不影响其他切片</div></div>
+      <div class="flow-step flow-step-last"><div class="flow-dot flow-dot-end"></div><div class="flow-content"><strong>ZIP 打包下载</strong> — 保存编辑后文案 → 打包全部 clip/ 目录 → 浏览器下载</div></div>
+    </div>
+  </div>
+  <div class="wf-tags-row">
+    <span class="wtag wtag-gray">clipboard API</span>
+    <span class="wtag wtag-purple">Claude 重新生成</span>
+    <span class="wtag wtag-green">ZIP 打包</span>
+    <span class="wtag wtag-blue">localStorage 持久化</span>
+  </div>
+</div>
+
+</div><!-- end tab-workflow -->
+
+
+<!-- TAB 3: AI Prompt 工程 -->
+<div id="tab-prompts" class="tab-panel">
+
+<p class="wf-text" style="max-width:620px;margin-bottom:16px">V4 Prompt 经 4 版迭代，从 12 个真实坑中沉淀出的工程深度。核心差异：不切"按时间窗的碎片"，而是切"陌生观众能独立看懂的完整片段"。</p>
+
+<div class="prompt-stats">
+  <div class="prompt-stat">Prompt 版本 <strong>V4（4 版迭代）</strong></div>
+  <div class="prompt-stat">调用点 <strong>4 个（C1-C4）</strong></div>
+  <div class="prompt-stat">模型 <strong>Claude Sonnet 4-6</strong></div>
+  <div class="prompt-stat">协议 <strong>OpenAI 兼容（蓝衣中转）</strong></div>
+  <div class="prompt-stat">兜底 <strong>JSON 三层解析</strong></div>
+</div>
+
+<!-- C1 -->
+<div class="prompt-card">
+  <div class="prompt-header">
+    <span class="prompt-badge" style="background:var(--coral-bg);color:var(--coral);border:1px solid var(--coral-bd)">C1</span>
+    <span class="prompt-title">违禁词 AI 二校</span>
+  </div>
+  <div class="prompt-body">
+    <p class="prompt-desc">词库扫描命中后，交给 Claude 复核上下文语境，判断是否真正违规。避免"中国"被误报为政治敏感词等误判场景。</p>
+    <ul class="prompt-rules">
+      <li>输入：命中段文本 + 词库类别（A/B/C 三级）</li>
+      <li>输出：{risk_level, suggestion}，维持/降级/标记</li>
+      <li>失败兜底：返回原词库标签，不升级也不放行</li>
+    </ul>
+  </div>
+</div>
+
+<!-- C2 -->
+<div class="prompt-card">
+  <div class="prompt-header">
+    <span class="prompt-badge" style="background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)">C2</span>
+    <span class="prompt-title">金句识别（V4 Prompt · 核心护城河）</span>
+  </div>
+  <div class="prompt-body">
+    <p class="prompt-desc">4 版迭代沉淀的核心能力。竞品（录咖/OpusClip）做的是"按时间窗切碎片"，我们做了 4 件他们没做的事：</p>
+    <ul class="prompt-rules">
+      <li><strong>合并语义碎片</strong> — ASR 按 2 秒停顿切碎，必须先合并成完整句再判断</li>
+      <li><strong>指代词回溯</strong> — "这个方法"必须往前找到"结构化思维"，拉入合并范围</li>
+      <li><strong>完整性硬规则</strong> — 首尾不能是助词/连接词/代词，字数 20-200，时长 5-45s</li>
+      <li><strong>4 类强制分类</strong> — 观点型 / 反常识型 / 情绪共鸣型 / 方法论型，不属于则排除</li>
+      <li><strong>宁缺毋滥</strong> — 70 分以下不输出，90+ 可直接做封面大字</li>
+    </ul>
+  </div>
+</div>
+
+<!-- C3 -->
+<div class="prompt-card">
+  <div class="prompt-header">
+    <span class="prompt-badge" style="background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-bd)">C3</span>
+    <span class="prompt-title">知识点识别（V4 Prompt）</span>
+  </div>
+  <div class="prompt-body">
+    <p class="prompt-desc">识别 1-5 分钟的完整知识讲解单元，必须满足三段式结构（引入/讲解/总结）+ 主题单一 + 自闭环。</p>
+    <ul class="prompt-rules">
+      <li><strong>三段式结构检测</strong> — 引入 + 讲解展开 + 总结收束，缺任一段不通过</li>
+      <li><strong>自闭环验证</strong> — 观众能不能"一句话总结学到了什么"？不能则排除</li>
+      <li><strong>6 类知识点</strong> — concept / method / pitfall / case / tool / opinion</li>
+      <li><strong>风险分级</strong> — low / medium / high，标记合规风险</li>
+      <li><strong>与金句区分</strong> — 金句 15-60s 适合抖音，知识点 1-5min 适合 B 站</li>
+    </ul>
+  </div>
+</div>
+
+<!-- C4 -->
+<div class="prompt-card">
+  <div class="prompt-header">
+    <span class="prompt-badge" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)">C4</span>
+    <span class="prompt-title">双平台文案生成（反编造硬规则）</span>
+  </div>
+  <div class="prompt-body">
+    <p class="prompt-desc">为每条切片生成抖音版 + B 站版文案。最重要的工程纪律：0 编造。</p>
+    <ul class="prompt-rules">
+      <li><strong>反编造规则 1</strong> — 核心观点必须严格基于博主原话，绝对不能编造未说过的观点/案例/数据</li>
+      <li><strong>反编造规则 2</strong> — 标题可以钩子化总结，但内容必须在原话里找到依据</li>
+      <li><strong>反编造规则 3</strong> — 所有"事实陈述"都必须来自原话</li>
+      <li><strong>反编造规则 4</strong> — 只有文案末尾的互动引导语允许 AI 原创</li>
+      <li>抖音版：≤30 字标题 + 50-150 字 caption</li>
+      <li>B 站版：≤40 字标题 + 100-300 字 caption</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 6 维度评分 -->
+<div class="prompt-card">
+  <div class="prompt-header">
+    <span class="prompt-badge" style="background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)">评分</span>
+    <span class="prompt-title">6 维度评分体系（100 分制）</span>
+  </div>
+  <div class="prompt-body">
+    <p class="prompt-desc">金句和知识点共用同一套评分维度，C2/C3 的 Prompt 输出 score_breakdown 对象。用户在列表看总分，展开看 6 维细分。</p>
+    <ul class="prompt-rules">
+      <li><strong>知识完整性 (25)</strong> — 概念引入 + 展开讲解 + 结论收束是否齐全</li>
+      <li><strong>独立可理解性 (20)</strong> — 陌生观众不看原视频能否看懂这段切片</li>
+      <li><strong>学习价值 (20)</strong> — 观众看完能收获什么具体方法/认知</li>
+      <li><strong>表达清晰度 (15)</strong> — 博主是否说得清晰、逻辑连贯</li>
+      <li><strong>时长适配性 (10)</strong> — 金句 15-60s / 知识点 1-5min 的平台适配度</li>
+      <li><strong>安全合规 (10)</strong> — 违禁词/敏感话题/版权风险</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- end tab-prompts -->
+
+
+<!-- DETAIL PANEL -->
+<div class="overlay" id="overlay" onclick="closePanel(event)">
+  <div class="panel" id="panel">
+    <button class="panel-close" onclick="closePanel()">✕</button>
+    <div class="panel-title" id="pTitle"></div>
+    <div class="panel-type" id="pType"></div>
+    <div class="panel-body" id="pBody"></div>
+    <div id="pExtra"></div>
+  </div>
+</div>
+
+<script>
+const D={
+  'l1-upload':{title:'视频上传',type:'用户层 · L1',body:'首页 hero 区域，支持拖拽和点选两种方式上传 MP4/MOV 文件。上传后前端用 HTML5 Video API 生成首帧缩略图（base64）+ 读取真实时长，完全在浏览器端跑，不消耗后端资源。上传进度用 XHR onprogress 实时展示。',tags:['拖拽上传','首帧缩略图','XHR进度','MP4/MOV']},
+  'l1-analyze':{title:'AI 分析',type:'用户层 · L1',body:'上传完成后自动进入。单卡居中加载 UI，展示三任务（违禁词/金句/知识点）并行进度。底部可折叠转写详情区支持搜索、高亮违禁词命中段、标记金句/知识点起始位置。',tags:['三任务进度','可折叠转写','搜索高亮']},
+  'l1-select':{title:'选择切片',type:'用户层 · L1',body:'金句/知识点双 Tab 切换。每条用 ScoreRing 圆环仪表盘展示总分，点击可展开 6 维度细分条形图。默认全选，用户按需取消勾选。底部汇总已选数量，一键确认切片。',tags:['ScoreRing仪表盘','6维展开','Tab切换','批量勾选']},
+  'l1-result':{title:'切片结果',type:'用户层 · L1',body:'大缩略图 + hover 播放遮罩。抖音/B站双 Tab 显示文案，标题和文案均可编辑，实时字数统计（抖音 300 / B站 1500 上限）。一键复制到剪贴板。Sticky 底部下载栏始终可见。B站 Tab 自动过滤金句切片（金句不适合 B 站）。',tags:['大缩略图','双平台Tab','文案编辑','ZIP下载']},
+  'l1-history':{title:'历史记录',type:'用户层 · L1',body:'侧栏导航的第二项。展示过往切片任务列表。当前 V1 基于 localStorage 存储，刷新后保留工作流进度。'},
+
+  'l2-workflow':{title:'4 步工作流编排',type:'应用层 · L2',body:'上传 → AI 分析 → 选择切片 → 下载结果。步骤间用条件路由连接：上传成功才进分析，分析完成才能选择，勾选后才能切片。每步完成状态持久化到 localStorage，刷新页面可恢复进度。状态自愈机制处理 view=workflow + step=1 等无效组合。',list:['Step 1 → Step 2：segments 非空','Step 2 → Step 3：golden 或 knowledge 非空','Step 3 → Step 4：clipResults 非空','状态自愈：无效组合自动修正']},
+  'l2-scoring':{title:'6 维度评分系统',type:'应用层 · L2',body:'100 分制，6 个维度加权求和：知识完整性(25) + 独立可理解性(20) + 学习价值(20) + 表达清晰度(15) + 时长适配性(10) + 安全合规(10)。列表只显总分，详情展开看 6 维细分 + AI 推荐理由 + 风险等级。90+ 为优秀，80-89 良好，70-79 可用，70 以下不输出。',list:['completeness: 25','independence: 20','learning_value: 20','clarity: 15','duration_fit: 10','compliance: 10']},
+  'l2-compliance':{title:'合规检测',type:'应用层 · L2',body:'两阶段检测：1) 本地词库扫描（sensitive_words.xlsx A/B/C 三级 + filler_words.txt 口水词），逐段匹配；2) Claude AI 二校（C1 调用点），对命中段做上下文语境复核，降低误判。检测结果在转写详情区用左侧色条标识（红/橙/蓝）。',list:['A 类：绝对违禁（红色）','B 类：注意用语（橙色）','C 类：建议修改（蓝色）','口水词：灰色标记']},
+  'l2-copy':{title:'双平台文案生成',type:'应用层 · L2',body:'每条切片通过 C4 调用点生成抖音版 + B 站版文案。核心工程纪律是"反 AI 编造"——4 条硬规则确保文案只基于博主原话，不虚构新观点。用户可在线编辑后保存，也可一键重新生成单条文案。',list:['抖音：≤30字标题 + 50-150字caption','B站：≤40字标题 + 100-300字caption','反编造规则 1-4','用户可编辑 + 重新生成']},
+  'l2-persist':{title:'状态持久化',type:'应用层 · L2',body:'前端用 localStorage 存储 11 个 keys（video-slicer:* 前缀），覆盖完整工作流状态：当前步骤、segments、videoId、videoFilename、违禁词结果、金句结果、知识点结果、已选金句、已选知识点、切片结果、编辑文案。刷新页面自动恢复到上次进度。',list:['video-slicer:step','video-slicer:segments','video-slicer:videoId','video-slicer:videoFilename','video-slicer:wordCheckResult','video-slicer:goldenResult','video-slicer:knowledgeResult','video-slicer:selectedGolden','video-slicer:selectedKnowledge','video-slicer:clipResults','video-slicer:editingCopy']},
+
+  'l3-transcribe':{title:'转写管线',type:'平台层 · L3',body:'完整链路：前端 FormData POST → FastAPI 接收保存临时文件 → FFmpeg 提取 16kHz 单声道 WAV → whisper.cpp medium 模型转写输出 JSON → 正则去时间标记 → zhconv 繁简转换兜底 → 持久化视频到 videos/<id>.mp4 → 返回 segments[]。S2 修复加了简体引导 prompt 双保险。',list:['FFmpeg: -ar 16000 -ac 1 -c:a pcm_s16le','whisper-cli: -l zh --prompt 简体引导','正则去时间标记: [hh:mm:ss.sss --> ...]','zhconv: zh-cn 兜底转换','持久化: videos/<uuid8>.mp4']},
+  'l3-ai-analyze':{title:'AI 分析管线',type:'平台层 · L3',body:'三任务调度：违禁词检测(C1)并行发出不阻塞主流程 → 金句识别(C2)串行 await → sleep 3s 限流保护 → 知识点识别(C3)串行 await。每个 LLM 输出都过 clean_json 三层兜底。全部结果按总分 desc 排序，默认全选。',list:['C1 违禁词检测 — 并行发出','C2 金句识别 — 串行 await','sleep 3s — API 限流保护','C3 知识点识别 — 串行 await','clean_json — 三层 JSON 兜底']},
+  'l3-clip':{title:'切片管线',type:'平台层 · L3',body:'对用户勾选的每条切片执行：FFmpeg 按时间戳切片（libx264 -preset slow -crf 18，视觉接近无损）→ 生成 SRT 字幕（时间归零）→ 中间帧缩略图 thumb.jpg → Claude C4 文案生成（抖音 + B站双版本）→ 写入 clip_NN/ 目录。串行处理 + sleep 间隔避免限流。',list:['FFmpeg: libx264 -preset slow -crf 18 -c:a aac -b:a 192k','SRT: 时间戳归零到切片内','thumb.jpg: 中间帧截取','C4 文案: Claude 双平台生成','meta.json: {clip_type, title}']},
+  'l3-export':{title:'导出管线',type:'平台层 · L3',body:'用户点击"打包下载 ZIP"：1) 先 POST /api/save-copy 保存用户编辑后的文案到后端；2) 打开 /api/download-package?video_id=xxx 触发后端 ZIP 打包（包含所有 clip_NN/ 目录的 mp4 + srt + thumb + meta.json）；3) 浏览器自动下载。'},
+  'l3-tool-ffmpeg':{title:'FFmpeg',type:'平台层 · L3 · 工具库',body:'系统级依赖（brew install ffmpeg）。承担两个职责：1) 转写阶段的音频提取（-ar 16000 -ac 1 -c:a pcm_s16le）；2) 切片阶段的视频编码（libx264 -preset slow -crf 18 -c:a aac -b:a 192k -pix_fmt yuv420p -movflags +faststart）。CRF 18 保证视觉接近无损。',tags:['brew install','音频提取','视频编码','CRF 18']},
+  'l3-tool-whisper':{title:'whisper.cpp',type:'平台层 · L3 · 工具库',body:'OpenAI 开源的 C++ 推理引擎，使用 medium 模型（1.4GB）在本地 CPU 推理。macOS ARM64 已编译好二进制。关键参数：-l zh 中文模式 + --prompt 简体引导（S2 修复，whisper 默认偏好繁体）。1 小时直播约 3-5 分钟转写完成（M2 芯片）。',tags:['MIT 协议','medium 1.4GB','macOS ARM64','CPU 推理']},
+  'l3-tool-claude':{title:'Claude API',type:'平台层 · L3 · 工具库',body:'通过蓝衣 API 中转商调用 Claude Sonnet 4-6，使用 OpenAI 兼容协议（因中转商不支持 Anthropic 原生格式）。httpx POST 直接调用，不用 SDK。4 个调用点：C1 违禁词二校、C2 金句识别、C3 知识点识别、C4 文案生成。所有输出过 clean_json 三层兜底。',list:['C1: 违禁词上下文复核','C2: V4 金句识别 Prompt','C3: V4 知识点识别 Prompt','C4: 反编造文案生成 Prompt','协议: OpenAI-compatible','SDK: httpx（非官方SDK）']},
+  'l3-tool-words':{title:'词库扫描',type:'平台层 · L3 · 工具库',body:'两个数据源：sensitive_words.xlsx（A/B/C 三级违禁词，openpyxl 解析）+ filler_words.txt（口水词列表，每行一词）。扫描逻辑：逐段文本做子串匹配，命中后记录 {word, risk_level, suggestion}。口水词单独标记不计入违禁。',tags:['openpyxl','A/B/C三级','口水词']},
+
+  'l4-fastapi':{title:'FastAPI 后端',type:'基座层 · L4',body:'单文件 main.py（832 行），有意为之——不拆模块，方便面试讲述全流程。5 个 API 端点：/transcribe（上传转写）、/api/check-words（违禁词）、/api/analyze-golden（金句）、/api/analyze-knowledge（知识点）、/api/process-clips（切片生成）+ 辅助端点（save-copy / download-package / get-clip-video / regenerate-text）。uvicorn 启动。',list:['/transcribe — POST 上传转写','/api/check-words — POST 违禁词检测','/api/analyze-golden — POST 金句识别','/api/analyze-knowledge — POST 知识点识别','/api/process-clips — POST 切片生成','/api/save-copy — POST 保存文案','/api/download-package — GET ZIP下载','/api/get-clip-video — GET 视频/缩略图','/api/regenerate-text — POST 重新生成文案']},
+  'l4-nextjs':{title:'Next.js 16 前端',type:'基座层 · L4',body:'App Router + React 19 + Tailwind CSS v4。核心页面 app/app/page.tsx 承载全部工作流逻辑。AppShell 组件提供双栏布局（左侧 sidebar + 右侧主区）。ThemeToggle 支持明暗主题切换。HomeView 承载首页 + 上传区。HistoryView 承载历史记录。',list:['app/app/page.tsx — 核心工作流','components/AppShell.tsx — 双栏布局','components/HomeView.tsx — 首页','components/HistoryView.tsx — 历史记录','components/ThemeToggle.tsx — 主题切换','components/AppHeader.tsx — 顶部栏']},
+  'l4-clean-json':{title:'JSON 三层兜底',type:'基座层 · L4',body:'所有 LLM 输出的 JSON 解析防护。层 1：直接 json.loads()；层 2：剥 markdown 代码块包裹（```json...```）后重试；层 3：_sanitize_json_string 转义字符串值内的裸中文双引号后重试。全部失败返回 {fallback_key: []}，让上层降级处理而不抛异常。这是踩坑 #5/#6 的工程对策。',tags:['层1 直接解析','层2 剥Markdown','层3 转义中文引号','降级空数组']},
+  'l4-cors':{title:'CORS · 错误处理',type:'基座层 · L4',body:'CORSMiddleware 允许 localhost:3000/3001 + 127.0.0.1:3000/3001 四个源。前端用 XHR（非 fetch）实现上传进度条。后端错误信息做脱敏（B-2 修复），stderr 只记 logs 不暴露给前端。HTTP 异常统一用 FastAPI HTTPException。',tags:['CORS 白名单','XHR 进度','错误脱敏','HTTPException']},
+
+  'l5-claude':{title:'Claude Sonnet 4-6',type:'模型层 · L5',body:'通过蓝衣 API 中转调用（lanyiapi.com），OpenAI 兼容协议。选择中转而非直连的原因：Anthropic 官方 API 在国内访问不稳定，蓝衣中转价 ≈ 官方 8 折。不用官方 SDK 的原因：中转商只支持 OpenAI 格式（踩坑 #3）。Temperature 使用默认值（约 1.0），Max tokens 未显式设置。',list:['中转: lanyiapi.com','协议: OpenAI-compatible','价格: ≈ 官方 8 折','调用: httpx POST']},
+  'l5-whisper':{title:'whisper.cpp medium',type:'模型层 · L5',body:'OpenAI 开源的 whisper 模型的 C++ 推理实现。使用 medium 规模模型（1.4GB），macOS ARM64 已编译好二进制（Intel Mac / Windows / Linux 需重新编译）。关键：whisper 默认偏好繁体（粤语/港台训练数据占比高），S2 修复加了简体引导 prompt + 下游 zhconv 兜底，双保险确保简体输出。',list:['模型: ggml-medium.bin (1.4GB)','编译: macOS ARM64','引导: --prompt 简体中文转写','兜底: zhconv zh-cn','性能: 1h → 3-5min (M2)']},
+
+  'l6-video':{title:'原始视频存储',type:'数据层 · L6',body:'上传的视频持久化到 backend/videos/<video_id>.mp4（video_id 为 uuid4 前 8 位 hex）。不删除（后续切片时需要读取原视频做 FFmpeg 时间戳裁剪）。V1 无清理机制，长期运行需手动清理。'},
+  'l6-clips':{title:'切片产物存储',type:'数据层 · L6',body:'每条切片存储在 videos/<video_id>/clip_<NN>/ 目录下，包含：clip.mp4（横屏切片）、vertical.mp4（V1 仅占位=clip.mp4 拷贝）、thumb.jpg（中间帧缩略图）、subtitle.srt（时间归零字幕）、meta.json（{clip_type, title}）。',list:['clip.mp4 — 横屏切片','vertical.mp4 — V1 占位','thumb.jpg — 缩略图','subtitle.srt — 字幕','meta.json — 元数据']},
+  'l6-wordlib':{title:'词库文件',type:'数据层 · L6',body:'两个静态数据文件：sensitive_words.xlsx（违禁词库，openpyxl 解析，A/B/C 三级）+ filler_words.txt（口水词列表，每行一词）。存放在 backend/data/ 目录。维护方式：人工编辑 xlsx / txt 文件，重启后端自动重新加载。'},
+  'l6-ls':{title:'localStorage 存储',type:'数据层 · L6',body:'前端用 localStorage 存储 11 个 keys（video-slicer:* 前缀），覆盖完整工作流状态。初始化时从 localStorage 读取，每次状态变更通过 useEffect 自动写回。刷新页面可恢复到上次的工作流进度。无过期/清理机制。',list:['step — 当前步骤 1-4','segments — 转写片段数组','videoId — 后端视频 ID','videoFilename — 原始文件名','wordCheckResult — 违禁词检测结果','goldenResult — 金句识别结果','knowledgeResult — 知识点识别结果','selectedGolden — 已选金句索引集','selectedKnowledge — 已选知识点索引集','clipResults — 切片结果数组','editingCopy — 编辑中的文案']},
+  'l6-thumb':{title:'首帧缩略图',type:'数据层 · L6',body:'前端用 HTML5 Video API 生成视频首帧缩略图：createObjectURL → video.currentTime = 0.5s → canvas.drawImage → canvas.toDataURL(JPEG, 0.72)。纯内存态，不持久化到 localStorage（base64 太大）。刷新页面后丢失，但不影响功能——只是视觉预览。'},
+};
+
+function show(id){
+  const d=D[id];if(!d)return;
+  document.getElementById('pTitle').textContent=d.title;
+  document.getElementById('pType').textContent=d.type;
+  document.getElementById('pBody').textContent=d.body;
+  const ex=document.getElementById('pExtra');ex.innerHTML='';
+  if(d.list){
+    const s=document.createElement('div');s.className='panel-section';
+    s.innerHTML='<div class="panel-section-title">关键细节</div>';
+    const ul=document.createElement('ul');ul.className='panel-list';
+    d.list.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li);});
+    s.appendChild(ul);ex.appendChild(s);
+  }
+  if(d.tags){
+    const s=document.createElement('div');s.className='panel-section';
+    s.innerHTML='<div class="panel-section-title">标签</div><div class="panel-tags"></div>';
+    const row=s.querySelector('.panel-tags');
+    d.tags.forEach(t=>{const sp=document.createElement('span');sp.className='panel-tag';sp.textContent=t;row.appendChild(sp);});
+    ex.appendChild(s);
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+function closePanel(e){if(!e||e.target===document.getElementById('overlay'))document.getElementById('overlay').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+</script>
+</body>
+</html>

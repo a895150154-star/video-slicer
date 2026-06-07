@@ -1,0 +1,41 @@
+# ===== 密钥 / 敏感文件（绝不上传）=====
+.env
+**/.env
+!**/.env.example
+
+# ===== 依赖 / 虚拟环境 =====
+node_modules/
+**/node_modules/
+venv/
+**/venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# ===== 构建产物 / 缓存 =====
+.next/
+**/.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# ===== 大文件 / 第三方库 / 打包 =====
+whisper.cpp-master/
+*.zip
+*.bin
+models/
+
+# ===== 测试 / 运行数据 =====
+**/backend/videos/
+**/backend/data/
+*.mp4
+*.mov
+
+# ===== 嵌套 git 仓库（避免变成 submodule）=====
+frontend/.git/
+
+# ===== 系统杂项 =====
+.DS_Store
+**/.DS_Store
+*.log
